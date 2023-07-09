@@ -26,4 +26,6 @@ urlpatterns = [
     path('locations/<int:id>', views.location_detail),
     path('characters', views.character_list),
     path('characters/<int:id>', views.character_detail),
+    path('events', views.event_list),
+    path('events/<int:id>', views.event_detail),
 ]
