@@ -23,3 +23,11 @@ urlpatterns = [
     path('worlds', views.world_list),
     path('worlds/<int:id>', views.world_detail),
 ]
+
+from worlds.locations import views
+
+urlpatterns = [
+    path('/admin/', admin.site.urls),
+    path('locations', views.location_list),
+    path('locations/<int:id>', views.location_detail),
+]
