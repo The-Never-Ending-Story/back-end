@@ -8,7 +8,10 @@ class World(models.Model):
     species = models.JSONField()
     geodynamics = models.JSONField()
     magictechnology = models.JSONField()
-    img = models.CharField(max_length=250)
+    img = models.TextField()
+    characters = models.JSONField()
+    locations = models.JSONField()
+    history = models.TextField()
 
     def __str__(self):
         return str(self.id) + " " + self.name

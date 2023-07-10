@@ -6,6 +6,8 @@ class Location(models.Model):
     description = models.TextField()
     img = models.CharField(max_length=250)
     world_id = models.ForeignKey("World", on_delete=models.CASCADE)
+    type = models.CharField(max_length=250)
+    time = models.CharField(max_length=250)
 
     def __str__(self):
         return str(self.id) + " " + self.name
