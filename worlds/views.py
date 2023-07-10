@@ -8,6 +8,8 @@ from .characters.models import Character
 from .characters.serializers import CharacterSerializer
 from .locations.models import Location
 from .locations.serializers import LocationSerializer
+from .events.models import Event
+from .events.serializers import EventSerializer
 
 @api_view(['GET', 'POST'])
 def world_list(request):
@@ -109,4 +111,38 @@ def location_detail(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     location.delete()
+    return Response(status=status.HTTP_404_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def event_list(request):
+
+  if request.method == 'GET':
+    events = Event.objects.all()
+    serializer = EventSerializer(events, many=True)
+    return Response(serializer.data)  
+  elif request.method == 'POST':
+    serializer = EventSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def event_detail(request, id):
+
+  try:
+    event = Event.objects.get(pk=id)
+  except Event.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+  if request.method == 'GET':
+    serializer = EventSerializer(event)
+    return Response(serializer.data)
+  elif request.method == 'PUT':
+    serializer = EventSerializer(event, data=request.data)
+    if serializer.is_valid():
+      event.save()
+      return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  elif request.method == 'DELETE':
+    event.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
