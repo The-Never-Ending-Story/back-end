@@ -11,6 +11,7 @@ class World(models.Model):
     img = models.TextField(default='none')
     characters = models.JSONField(default='none')
     locations = models.JSONField(default='none')
+    events = models.JSONField(default='none')
     history = models.TextField(default='none')
 
     def __str__(self):
