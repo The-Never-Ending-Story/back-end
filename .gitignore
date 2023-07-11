@@ -2,3 +2,4 @@
 __pycache__/
 worlds/**/__pycache__/
 .pytest_cache
+htmlcov
