@@ -2,6 +2,7 @@ import requests
 import json
 import openai
 from .settings import OPENAI_API_KEY
+from .settings import MIDJ_API_KEY
 
 
 def gpt_response(prompt):
@@ -12,7 +13,7 @@ def gpt_response(prompt):
         model="gpt-3.5-turbo",
         messages=messages,
         temperature=1.0,
-        max_tokens=3500,
+        max_tokens=3000,
         n=1,
         stop=None,
     )
@@ -36,13 +37,14 @@ def midjourney_image(prompt):
     payload = json.dumps({
         "msg": prompt,
         "ref": "",
-        "webhookOverride": ""
+        "webhookOverride": "",
+        "ignorePrefilter": "false"
     })
     headers = {
-        'Authorization': 'Bearer <your-token>',
+        'Authorization': f'Bearer {MIDJ_API_KEY}',
         'Content-Type': 'application/json'
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    print(response.text)
+    return response.text

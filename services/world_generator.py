@@ -1,5 +1,5 @@
 import json
-from .api_services import gpt_response, dalle_image
+from .api_services import gpt_response, midjourney_image
 from .prompts import gpt_prompt
 # from worlds.models import World
 
@@ -9,12 +9,14 @@ def generate_world(params):
 
     try:
         world_json = json.loads(world_response)
-        world_json["image"] = dalle_image("A landscape view of this world: " + world_json["description"])
+        world_json["image"] = midjourney_image(world_json["imagine"])
 
         return world_json
-        #
-        # world = World(**response_json)
+
+        # world = World(**world_json)
         # world.save()
+        #
+        # return world
 
     except json.JSONDecodeError as e:
         error = f"""

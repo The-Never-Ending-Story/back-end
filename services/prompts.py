@@ -14,7 +14,7 @@ def gpt_prompt(params):
        
        Your response should follow this structure:
            {{
-            "name": (a creative name based on its features),
+            "name": (a creative name based on its features. may be inspired by genre but not directly use genre names),
             "blurb": (a brief one-liner about the world),
             "description": (a one paragraph description),
             "geoDynamics": {{
@@ -24,16 +24,16 @@ def gpt_prompt(params):
             "magicTechnology": {{
                 "magic": (Boolean),
                 "technology": (Integer),
-                "genres": [(eg fantasy, sci-fi, _-punk, vaporwave, etc)]  
+                "genres": [(eg fantasy, sci-fi, _-punk, vaporwave)]  
             }}
             "species": [{{
                 "name": (name of species),
                 "description": (description),
                 "politics": (one sentence about their politics),
-                "imagine": (image prompt; a detailed natural language description of appearance)")
+                "imagine": (image prompt; each imagine prompt should be a detailed standalone one-paragraph natural language description of appearance only, no names. include appropriate stylistic instructions)")
             }}]
             "locations": [{{
-                "type": (eg city, settlement, landmark, monument, etc),
+                "type": (eg city, settlement, landmark, monument),
                 "climate": (local microclimate),
                 "name": (name),
                 "lore": (description),
@@ -50,8 +50,8 @@ def gpt_prompt(params):
             "events": [{{
                 "name": (name),
                 "type": (type of event)
-                "age": (ie, the epoch of the world),
-                "time": (made up calendar year),
+                "age": (the epoch of the world),
+                "time": (calendar year),
                 "lore": (description),
                 "imagine": (image prompt)
             }}]
@@ -60,6 +60,6 @@ def gpt_prompt(params):
                  eg, "The Era of Darkness plunged Mythos into chaos, with monsters and dark forces threatening its existence.",
                  eg, "The Age of Heroes brought forth legendary figures who shaped the world's destiny."
                ],
-            "imagine": (image prompt)
+            "imagine": (detailed one-paragraph prompt for a landscape view of the world. no names)
              }}
        """
