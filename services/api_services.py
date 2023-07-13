@@ -1,11 +1,10 @@
 import requests
 import json
 import openai
-from prompts import gpt_prompt
 from settings import OPENAI_API_KEY
 
 
-def get_gpt_response(prompt):
+def gpt_response(prompt):
     openai.api_key = OPENAI_API_KEY
     messages = [{"role": "system", "content": "You are an API endpoint. Please respond as a JSON field"},
                 {"role": "user", "content": prompt}]
@@ -47,21 +46,3 @@ def generate_midjourney_image(prompt):
     response = requests.request("POST", url, headers=headers, data=payload)
 
     print(response.text)
-
-
-def generate_world(params):
-    response = get_gpt_response(gpt_prompt(params))
-    try:
-        response_json = json.loads(response)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        print(f"Response text: {response}")
-    image_instructions = "A landscape view of the following world: " + response_json["description"]
-    response_json["image"] = generate_dalle_image(image_instructions)
-
-    return response_json
-
-
-response = generate_world(
-    {"geodynamics": "lush rainforest", "magicTechnology": {"magic": "true", "technological_level": "6"}})
-print(response)
