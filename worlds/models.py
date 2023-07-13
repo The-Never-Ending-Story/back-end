@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 
 class World(models.Model):
     name = models.CharField(max_length=250)
@@ -7,8 +6,8 @@ class World(models.Model):
     description = models.TextField()
     discovered = models.BooleanField()
     species = models.JSONField()
-    geodynamics = models.JSONField()
-    magictechnology = models.JSONField()
+    geoDynamics = models.JSONField()
+    magicTechnology = models.JSONField()
     img = models.TextField(default='none')
     characters = models.JSONField(default=dict)
     locations = models.JSONField(default=dict)
