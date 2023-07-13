@@ -4,8 +4,12 @@ def gpt_prompt(params):
 
        {params}
 
-       Include a description of the world's landscapes, its major species, their cities/settlements/colonies, 
-        with a significant character.
+       Include descriptions of:
+        -the world's landscapes, 
+        -its major species, 
+        -2 of their cities/settlements/colonies, and one other significant location,
+        -a significant character for each location,
+        -and a significant event each character participated in.
        Based on these, describe an overview of the world's historical lore in three epochs.
        Your response should follow this structure:
            {{
@@ -46,4 +50,3 @@ def gpt_prompt(params):
                ]
              }}
        """
-
