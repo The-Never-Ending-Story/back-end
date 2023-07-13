@@ -4,6 +4,7 @@ charset-normalizer==3.2.0
 coverage==7.2.7
 dj-database-url==2.0.0
 Django==4.2.3
+django-environ==0.10.0
 django-on-heroku==1.1.2
 djangorestframework==3.14.0
 idna==3.4
@@ -14,7 +15,6 @@ psycopg2-binary==2.9.6
 pytest==7.4.0
 pytest-cov==4.1.0
 pytest-django==4.5.2
-python-dotenv==1.0.0
 pytz==2023.3
 requests==2.31.0
 sqlparse==0.4.4
