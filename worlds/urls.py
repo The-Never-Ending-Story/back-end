@@ -28,5 +28,11 @@ urlpatterns = [
     path('characters/<int:id>', views.character_detail),
     path('events', views.event_list),
     path('events/<int:id>', views.event_detail),
+    path('worlds/<int:id>/locations', views.world_locations_list),
+    path('worlds/<int:world_id>/locations/<int:id>', views.world_location_detail),
+    path('worlds/<int:id>/characters', views.world_characters_list),
+    path('worlds/<int:world_id>/characters/<int:id>', views.world_character_detail),
+    path('worlds/<int:id>/events', views.world_events_list),
+    path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail),
     path('webhook/', views.webhook, name='webhook')
 ]
