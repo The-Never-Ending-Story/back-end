@@ -4,4 +4,4 @@ from .models import World
 class WorldSerializer(serializers.ModelSerializer):
     class Meta:
           model = World
-          fields = ['id', 'name', 'blurb', 'description', 'species', 'geodynamics', 'magictechnology', 'img', 'characters', 'locations', 'events', 'history' ]
+          fields = ['id', 'name', 'blurb', 'description', 'species', 'geoDynamics', 'magicTechnology', 'img', 'characters', 'locations', 'events', 'history' ]
