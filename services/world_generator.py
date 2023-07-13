@@ -25,5 +25,5 @@ def generate_world(params):
 
 
 response = generate_world(
-    {"geodynamics": {"climate": "lush rainforest", "size": "large"}, "magicTechnology": {"magic": "true", "technological_level": "6"}, "genres": ["vaporwave", "fantasy"]})
+    {"magicTechnology": {"magic": "true", "technological_level": "6"}, "genres": ["vaporwave", "fantasy"]})
 print(response)

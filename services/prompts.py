@@ -17,11 +17,11 @@ def gpt_prompt(params):
             "name": (a creative name based on its features),
             "blurb": (a brief one-liner about the world),
             "description": (a one paragraph description),
-            "geodynamics": {{
+            "geoDynamics": {{
                 "size": (scope),
                 "climate": (natural conditions)
             }}
-            "magictechnology": {{
+            "magicTechnology": {{
                 "magic": (Boolean),
                 "technology": (Integer),
                 "genres": [(eg fantasy, sci-fi, _-punk, vaporwave, etc)]  
