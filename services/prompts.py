@@ -1,6 +1,6 @@
 def gpt_prompt(params):
     return f"""
-       Describe a world in vivid detail with the following features:
+       Please describe a world in vivid detail with the following features:
 
        {params}
 
@@ -11,6 +11,7 @@ def gpt_prompt(params):
         -a significant character for each location,
         -and a significant event each character participated in.
        Based on these, describe an overview of the world's historical lore in three epochs.
+       
        Your response should follow this structure:
            {{
             "name": (a creative name based on its features),
