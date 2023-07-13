@@ -2,9 +2,9 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from ..models import World
-from ..locations.models import Location
-from ..events.models import Event
+from ...models import World
+from ...locations.models import Location
+from ...events.models import Event
 
 
 @pytest.fixture
