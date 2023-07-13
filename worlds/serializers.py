@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import World
-
 from .characters.models import Character
 from .characters.serializers import CharacterSerializer
 from .locations.models import Location
@@ -15,7 +14,7 @@ class WorldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = World
-        fields = ['id', 'name', 'blurb', 'description', 'discovered', 'species', 'geodynamics', 'magictechnology', 'img', 'characters', 'locations', 'events', 'history' ]
+        fields = ['id', 'name', 'blurb', 'description', 'discovered', 'species', 'geoDynamics', 'magicTechnology', 'img', 'characters', 'locations', 'events', 'history' ]
 
     def get_characters(self, obj):
         characters = Character.objects.filter(world=obj)
