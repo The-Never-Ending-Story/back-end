@@ -21,27 +21,33 @@ def gpt_prompt(params):
                 "climate": (eg, "lush rainforest")
             }}
             "magictechnology": {{
-                "magic": true,
-                "technology": 6,
+                "magic": (Boolean),
+                "technology": (Integer),
                 "genres": [(eg fantasy, sci-fi, _-punk, vaporwave, etc)]  
             }}
             "species": [{{
                 "name": (name of species),
-                "alignment": (DnD alignment),
                 "politics": (one sentence about their politics)
             }}]
             "locations": [{{
                 "type": (eg city, settlement, landmark, monument, etc),
+                "climate": (local microclimate),
                 "name": (name),
-                "description": (description)
+                "lore": (description)
                }}]
             "characters": [{{
                "name": (name),
-               "description": (description)
+               "age": (Integer),
+               "species": (name of species),
+               "alignment": (DnD alignment),
+               "lore": String
             }}]
             "events": [{{
-                "time": "2000",
-                "description": "A rebellion"
+                "name": (name),
+                "type": (type of event)
+                "age": (ie, the epoch of the world),
+                "time": (made up calendar year),
+                "lore": (description)
             }}]
             "history": [
                  eg, "The Age of Creation saw the birth of the world and the awakening of its first inhabitants.",
