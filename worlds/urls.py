@@ -34,4 +34,5 @@ urlpatterns = [
     path('worlds/<int:world_id>/characters/<int:id>', views.world_character_detail),
     path('worlds/<int:id>/events', views.world_events_list),
     path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail),
+    path('webhook/', views.webhook, name='webhook')
 ]

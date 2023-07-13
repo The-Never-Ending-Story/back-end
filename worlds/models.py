@@ -4,12 +4,13 @@ class World(models.Model):
     name = models.CharField(max_length=250)
     blurb = models.CharField(max_length=250)
     description = models.TextField()
-    discovered = models.BooleanField()
+    discovered = models.BooleanField(default=False)
     species = models.JSONField()
-    geodynamics = models.JSONField()
+    geoDynamics = models.JSONField()
     magicTechnology = models.JSONField()
     img = models.TextField(default='none')
     history = models.TextField(default=dict)
+
 
     @property
     def locations(self):
