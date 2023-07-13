@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('discovered', models.BooleanField()),
                 ('species', models.TextField()),
-                ('geodymanics', models.TextField()),
+                ('geodynamics', models.TextField()),
                 ('magictechnology', models.TextField()),
                 ('img', models.CharField(max_length=250)),
             ],

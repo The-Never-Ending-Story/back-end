@@ -34,4 +34,12 @@ urlpatterns = [
     path('worlds/<int:world_id>/characters/<int:id>', views.world_character_detail),
     path('worlds/<int:id>/events', views.world_events_list),
     path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail),
+    path('worlds', views.world_list, name='get_worlds'),
+    path('worlds/<int:id>', views.world_detail, name='get_world'),
+    path('locations', views.location_list, name='get_locations'),
+    path('locations/<int:id>', views.location_detail, name='get_location'),
+    path('characters', views.character_list, name='get_characters'),
+    path('characters/<int:id>', views.character_detail, name='get_character'),
+    path('events', views.event_list, name='get_events'),
+    path('events/<int:id>', views.event_detail, name='get_event'),
 ]

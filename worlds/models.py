@@ -5,13 +5,10 @@ class World(models.Model):
     blurb = models.CharField(max_length=250)
     description = models.TextField()
     discovered = models.BooleanField()
-    species = models.JSONField()
-    geodynamics = models.JSONField()
-    magictechnology = models.JSONField()
+    species = models.JSONField(default=dict)
+    geodynamics = models.JSONField(default=dict)
+    magictechnology = models.JSONField(default=dict)
     img = models.TextField(default='none')
-    characters = models.JSONField(default=dict)
-    locations = models.JSONField(default=dict)
-    events = models.JSONField(default=dict)
     history = models.TextField(default='none')
 
     def __str__(self):
