@@ -10,6 +10,9 @@ from .locations.models import Location
 from .locations.serializers import LocationSerializer
 from .events.models import Event
 from .events.serializers import EventSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 @api_view(['GET', 'POST'])
 def world_list(request):
@@ -146,3 +149,12 @@ def event_detail(request, id):
   elif request.method == 'DELETE':
     event.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
+  
+  @csrf_exempt
+  def webhook(request):
+    if request.method == 'POST':
+        payload = json.loads(request.body)
+
+        return JsonResponse({'status': 'ok'}, status=200)
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -28,4 +28,5 @@ urlpatterns = [
     path('characters/<int:id>', views.character_detail),
     path('events', views.event_list),
     path('events/<int:id>', views.event_detail),
+    path('webhook/', views.webhook, name='webhook')
 ]
