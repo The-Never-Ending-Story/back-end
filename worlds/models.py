@@ -7,12 +7,21 @@ class World(models.Model):
     discovered = models.BooleanField()
     species = models.JSONField()
     geodynamics = models.JSONField()
-    magictechnology = models.JSONField()
+    magicTechnology = models.JSONField()
     img = models.TextField(default='none')
-    characters = models.JSONField(default=dict)
-    locations = models.JSONField(default=dict)
-    events = models.JSONField(default=dict)
     history = models.TextField(default=dict)
 
+    @property
+    def locations(self):
+        return self.location_set.all()
+
+    @property
+    def characters(self):
+        return self.character_set.all()
+    
+    @property
+    def events(self):
+        return self.event_set.all()
+    
     def __str__(self):
         return str(self.id) + " " + self.name
