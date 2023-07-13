@@ -18,8 +18,8 @@ def gpt_prompt(params):
             "blurb": (a brief one-liner about the world),
             "description": (a one paragraph description),
             "geodynamics": {{
-                "size": (eg, "large"),
-                "climate": (eg, "lush rainforest")
+                "size": (scope),
+                "climate": (natural conditions)
             }}
             "magictechnology": {{
                 "magic": (Boolean),
@@ -28,32 +28,38 @@ def gpt_prompt(params):
             }}
             "species": [{{
                 "name": (name of species),
-                "politics": (one sentence about their politics)
+                "description": (description),
+                "politics": (one sentence about their politics),
+                "imagine": (image prompt; a detailed natural language description of appearance)")
             }}]
             "locations": [{{
                 "type": (eg city, settlement, landmark, monument, etc),
                 "climate": (local microclimate),
                 "name": (name),
-                "lore": (description)
+                "lore": (description),
+                "imagine": (image prompt)
                }}]
             "characters": [{{
                "name": (name),
                "age": (Integer),
                "species": (name of species),
                "alignment": (DnD alignment),
-               "lore": String
+               "lore": String,
+               "imagine": (image prompt)
             }}]
             "events": [{{
                 "name": (name),
                 "type": (type of event)
                 "age": (ie, the epoch of the world),
                 "time": (made up calendar year),
-                "lore": (description)
+                "lore": (description),
+                "imagine": (image prompt)
             }}]
             "history": [
                  eg, "The Age of Creation saw the birth of the world and the awakening of its first inhabitants.",
                  eg, "The Era of Darkness plunged Mythos into chaos, with monsters and dark forces threatening its existence.",
                  eg, "The Age of Heroes brought forth legendary figures who shaped the world's destiny."
-               ]
+               ],
+            "imagine": (image prompt)
              }}
        """
