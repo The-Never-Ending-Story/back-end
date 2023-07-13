@@ -1,16 +1,20 @@
 import json
-from api_services import gpt_response, generate_dalle_image
-from prompts import gpt_prompt
+from .api_services import gpt_response, dalle_image
+from .prompts import gpt_prompt
+# from worlds.models import World
 
 
 def generate_world(params):
-    response = gpt_response(gpt_prompt(params))
-    try:
-        response_json = json.loads(response)
-        image_instructions = "A landscape view of the following world: " + response_json["description"]
-        response_json["image"] = generate_dalle_image(image_instructions)
+    world_response = gpt_response(gpt_prompt(params))
 
-        return response_json
+    try:
+        world_json = json.loads(world_response)
+        world_json["image"] = dalle_image(world_json["description"])
+
+        return world_json
+        #
+        # world = World(**response_json)
+        # world.save()
 
     except json.JSONDecodeError as e:
         error = f"""

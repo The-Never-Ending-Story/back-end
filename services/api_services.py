@@ -1,7 +1,7 @@
 import requests
 import json
 import openai
-from settings import OPENAI_API_KEY
+from .settings import OPENAI_API_KEY
 
 
 def gpt_response(prompt):
@@ -19,10 +19,10 @@ def gpt_response(prompt):
     return response.choices[0].message.content.strip()
 
 
-def generate_dalle_image(prompt):
+def dalle_image(prompt):
     openai.api_key = OPENAI_API_KEY
     response = openai.Image.create(
-        prompt=prompt,
+        prompt="A landscape view of this world: " + prompt,
         n=1,
         size="1024x1024"
     )
@@ -30,7 +30,7 @@ def generate_dalle_image(prompt):
     return image_url
 
 
-def generate_midjourney_image(prompt):
+def midjourney_image(prompt):
     url = "https://api.thenextleg.io/v2/imagine"
 
     payload = json.dumps({
