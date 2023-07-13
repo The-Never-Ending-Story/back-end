@@ -9,7 +9,7 @@ def generate_world(params):
 
     try:
         world_json = json.loads(world_response)
-        world_json["image"] = dalle_image(world_json["description"])
+        world_json["image"] = dalle_image("A landscape view of this world: " + world_json["description"])
 
         return world_json
         #
@@ -25,5 +25,5 @@ def generate_world(params):
 
 
 response = generate_world(
-    {"geodynamics": "lush rainforest", "magicTechnology": {"magic": "true", "technological_level": "6"}})
+    {"geodynamics": {"climate": "lush rainforest", "size": "large"}, "magicTechnology": {"magic": "true", "technological_level": "6"}, "genres": ["vaporwave", "fantasy"]})
 print(response)

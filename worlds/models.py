@@ -4,7 +4,7 @@ class World(models.Model):
     name = models.CharField(max_length=250)
     blurb = models.CharField(max_length=250)
     description = models.TextField()
-    discovered = models.BooleanField()
+    discovered = models.BooleanField(default=False)
     species = models.JSONField()
     geodynamics = models.JSONField()
     magictechnology = models.JSONField()

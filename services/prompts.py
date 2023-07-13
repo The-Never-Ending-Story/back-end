@@ -13,12 +13,13 @@ def gpt_prompt(params):
             "blurb": (a brief one-liner about the world),
             "description": (a one paragraph description),
             "geodynamics": {{
-                "size": ("large"),
-                "climate": "lush rainforest"
+                "size": (eg, "large"),
+                "climate": (eg, "lush rainforest")
             }}
             "magictechnology": {{
                 "magic": true,
-                "technology": 6
+                "technology": 6,
+                "genres": [(eg fantasy, sci-fi, _-punk, vaporwave, etc)]  
             }}
             "species": [{{
                 "name": (name of species),

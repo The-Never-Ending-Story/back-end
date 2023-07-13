@@ -12,7 +12,7 @@ def gpt_response(prompt):
         model="gpt-3.5-turbo",
         messages=messages,
         temperature=1.0,
-        max_tokens=3690,
+        max_tokens=3500,
         n=1,
         stop=None,
     )
@@ -22,7 +22,7 @@ def gpt_response(prompt):
 def dalle_image(prompt):
     openai.api_key = OPENAI_API_KEY
     response = openai.Image.create(
-        prompt="A landscape view of this world: " + prompt,
+        prompt=prompt,
         n=1,
         size="1024x1024"
     )

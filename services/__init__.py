@@ -1,2 +1,3 @@
 from .world_generator import generate_world
-from .api_services import gpt_response, generate_dalle_image, generate_midjourney_image
+from .api_services import gpt_response, dalle_image, midjourney_image
+from .prompts import gpt_prompt
