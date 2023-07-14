@@ -20,7 +20,7 @@ def world_list(request):
   if request.method == 'GET':
     worlds = World.objects.all()
     serializer = WorldSerializer(worlds, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = WorldSerializer(data=request.data)
     if serializer.is_valid():
@@ -54,7 +54,7 @@ def character_list(request):
   if request.method == 'GET':
     characters = Character.objects.all()
     serializer = CharacterSerializer(characters, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = CharacterSerializer(data=request.data)
     if serializer.is_valid():
@@ -88,7 +88,7 @@ def location_list(request):
   if request.method == 'GET':
     locations = Location.objects.all()
     serializer = LocationSerializer(locations, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = LocationSerializer(data=request.data)
     if serializer.is_valid():
@@ -122,7 +122,7 @@ def event_list(request):
   if request.method == 'GET':
     events = Event.objects.all()
     serializer = EventSerializer(events, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = EventSerializer(data=request.data)
     if serializer.is_valid():
@@ -149,7 +149,7 @@ def event_detail(request, id):
   elif request.method == 'DELETE':
     event.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
-  
+
 @api_view(['GET', 'POST'])
 def world_locations_list(request, id):
 
@@ -157,13 +157,13 @@ def world_locations_list(request, id):
     world = World.objects.get(pk=id)
     locations = world.location_set.all()
     serializer = LocationSerializer(locations, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = LocationSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def world_location_detail(request, world_id, id):
 
@@ -185,7 +185,7 @@ def world_location_detail(request, world_id, id):
   elif request.method == 'DELETE':
     location.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
-  
+
 @api_view(['GET', 'POST'])
 def world_characters_list(request, id):
 
@@ -193,13 +193,13 @@ def world_characters_list(request, id):
     world = World.objects.get(pk=id)
     characters = world.character_set.all()
     serializer = CharacterSerializer(characters, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = CharacterSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def world_character_detail(request, world_id, id):
 
@@ -221,7 +221,7 @@ def world_character_detail(request, world_id, id):
   elif request.method == 'DELETE':
     character.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
-  
+
 @api_view(['GET', 'POST'])
 def world_events_list(request, id):
 
@@ -229,13 +229,13 @@ def world_events_list(request, id):
     world = World.objects.get(pk=id)
     events = world.event_set.all()
     serializer = EventSerializer(events, many=True)
-    return Response(serializer.data)  
+    return Response(serializer.data)
   elif request.method == 'POST':
     serializer = EventSerializer(data=request.data)
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def world_event_detail(request, world_id, id):
 
@@ -258,6 +258,22 @@ def world_event_detail(request, world_id, id):
     event.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
 
+@api_view(['GET'])
+def discover_world(request):
+    try:
+        world_list = World.objects.filter(discovered=False)
+        if len(world_list) == 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        world = world_list[0]
+    except World.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        serializer = WorldSerializer(world)
+        world.discovered = True
+        world.save()
+        return Response(serializer.data)
+
+
 @csrf_exempt
 def webhook(request):
   if request.method == 'POST':
@@ -266,4 +282,3 @@ def webhook(request):
       return JsonResponse({'status': 'ok'}, status=200)
   else:
       return JsonResponse({'error': 'Invalid request'}, status=400)
-    
