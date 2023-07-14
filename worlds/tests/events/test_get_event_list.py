@@ -2,9 +2,9 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from ...models import World
-from ...locations.models import Location
-from ...events.models import Event
+from worlds.models import World
+from worlds.locations.models import Location
+from worlds.events.models import Event
 
 
 @pytest.fixture
@@ -51,17 +51,27 @@ def mock_events(mock_world, mock_location):
 
 @pytest.mark.django_db
 def test_get_event_happy(mock_events):
-    event1, event2 = mock_events
-    print('test_get_event_happy')
     client = APIClient()
-    url = reverse('get_event', kwargs={'id': event1.id})
+    url = reverse('get_event_list')
     response = client.get(url)
 
     assert response.status_code == 200
-    assert type(response.json()) is dict
+    json = response.json()
 
-    assert 'id' in response.json()
-    assert 'description' in response.json()
-    assert 'world_id' in response.json()
-    assert 'location_id' in response.json()
-    assert 'time' in response.json()
+    assert type(json) is list
+    assert len(json) == 2
+    event = json[0]
+
+    assert type(event) is dict
+
+    assert 'id' in event
+    assert 'description' in event
+    assert 'world_id' in event
+    assert 'location_id' in event
+    assert 'time' in event
+
+    assert type(event['id']) is int
+    assert type(event['description']) is str
+    assert type(event['world_id']) is int
+    assert type(event['location_id']) is int
+    assert type(event['time']) is str
