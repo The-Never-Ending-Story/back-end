@@ -59,3 +59,12 @@ def test_get_event_happy(mock_event):
     assert type(event['world_id']) is int
     assert type(event['location_id']) is int
     assert type(event['time']) is str
+
+
+@pytest.mark.django_db
+def test_get_event_sad():
+    client = APIClient()
+    url = reverse('get_event', kwargs={'id': 5678})
+    response = client.get(url)
+
+    assert response.status_code == 404

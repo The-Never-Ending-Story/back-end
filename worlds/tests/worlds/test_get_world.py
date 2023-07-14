@@ -118,3 +118,12 @@ def test_get_world_happy(mock_world):
     assert type(world['events']) is list
     assert type(world['locations']) is list
     assert type(world['characters']) is list
+
+
+@pytest.mark.django_db
+def test_get_world_sad():
+    client = APIClient()
+    url = reverse('get_world', kwargs={'id': 5678})
+    response = client.get(url)
+
+    assert response.status_code == 404

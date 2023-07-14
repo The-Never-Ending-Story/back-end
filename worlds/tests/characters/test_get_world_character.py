@@ -70,3 +70,13 @@ def test_get_character_happy(mock_character, mock_world):
     assert type(character['img']) is str
     assert type(character['world_id']) is int
     assert type(character['location_id']) is int
+
+
+@pytest.mark.django_db
+def test_get_world_character_invalid_world(mock_character):
+    client = APIClient()
+    url_ids = {'world_id': 5678, 'id': mock_character.id}
+    url = reverse('get_world_location', kwargs=url_ids)
+    response = client.get(url)
+
+    assert response.status_code == 404

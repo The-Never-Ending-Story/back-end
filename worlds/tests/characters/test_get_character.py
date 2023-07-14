@@ -69,3 +69,12 @@ def test_get_character_happy(mock_character):
     assert type(character['img']) is str
     assert type(character['world_id']) is int
     assert type(character['location_id']) is int
+
+
+@pytest.mark.django_db
+def test_get_character_sad():
+    client = APIClient()
+    url = reverse('get_character', kwargs={'id': 5678})
+    response = client.get(url)
+
+    assert response.status_code == 404

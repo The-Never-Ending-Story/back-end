@@ -50,3 +50,12 @@ def test_get_location_happy(mock_location):
     assert type(location['img']) is str
     assert type(location['world_id']) is int
     assert type(location['type']) is str
+
+
+@pytest.mark.django_db
+def test_get_location_sad():
+    client = APIClient()
+    url = reverse('get_location', kwargs={'id': 5678})
+    response = client.get(url)
+
+    assert response.status_code == 404
