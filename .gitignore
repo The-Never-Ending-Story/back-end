@@ -4,3 +4,4 @@ worlds/**/__pycache__/
 .pytest_cache
 htmlcov
 .env
+.coverage
