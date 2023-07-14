@@ -171,7 +171,9 @@ def world_location_detail(request, world_id, id):
     world = World.objects.get(pk=world_id)
     locations = world.location_set.all()
     location = locations.get(pk=id)
-  except World.DoesNotExist or Location.DoesNotExist:
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
+  except Location.DoesNotExist:
     return Response(status=status.HTTP_404_NOT_FOUND)
   if request.method == 'GET':
     serializer = LocationSerializer(location)
@@ -207,7 +209,9 @@ def world_character_detail(request, world_id, id):
     world = World.objects.get(pk=world_id)
     characters = world.character_set.all()
     character = characters.get(pk=id)
-  except World.DoesNotExist or Character.DoesNotExist:
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
+  except Character.DoesNotExist:
     return Response(status=status.HTTP_404_NOT_FOUND)
   if request.method == 'GET':
     serializer = CharacterSerializer(character)
@@ -243,7 +247,9 @@ def world_event_detail(request, world_id, id):
     world = World.objects.get(pk=world_id)
     events = world.event_set.all()
     event = events.get(pk=id)
-  except World.DoesNotExist or Event.DoesNotExist:
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
+  except Event.DoesNotExist: 
     return Response(status=status.HTTP_404_NOT_FOUND)
   if request.method == 'GET':
     serializer = EventSerializer(event)
