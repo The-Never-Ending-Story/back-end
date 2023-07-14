@@ -13,11 +13,6 @@ def mock_world():
         name='Magic World',
         blurb='A magical world',
         description='A world of high fantasy and powerful magics',
-        discovered=True,
-        species={"origin": "human"},
-        geodynamics={"origin": "mountains"},
-        magictechnology={"origin": "ancient"},
-        img='https://imgur.com/gallery/world123'
     )
 
 
@@ -50,28 +45,28 @@ def mock_events(mock_world, mock_location):
 
 
 @pytest.mark.django_db
-def test_get_event_happy(mock_events):
+def test_get_event_list_happy(mock_events):
     client = APIClient()
     url = reverse('get_event_list')
     response = client.get(url)
 
     assert response.status_code == 200
-    json = response.json()
+    event_list = response.json()
 
-    assert type(json) is list
-    assert len(json) == 2
-    event = json[0]
+    assert type(event_list) is list
+    assert len(event_list) == 2
 
-    assert type(event) is dict
+    for event in event_list:
+        assert type(event) is dict
 
-    assert 'id' in event
-    assert 'description' in event
-    assert 'world_id' in event
-    assert 'location_id' in event
-    assert 'time' in event
+        assert 'id' in event
+        assert 'description' in event
+        assert 'world_id' in event
+        assert 'location_id' in event
+        assert 'time' in event
 
-    assert type(event['id']) is int
-    assert type(event['description']) is str
-    assert type(event['world_id']) is int
-    assert type(event['location_id']) is int
-    assert type(event['time']) is str
+        assert type(event['id']) is int
+        assert type(event['description']) is str
+        assert type(event['world_id']) is int
+        assert type(event['location_id']) is int
+        assert type(event['time']) is str

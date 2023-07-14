@@ -13,11 +13,6 @@ def mock_world():
         name='Magic World',
         blurb='A magical world',
         description='A world of high fantasy and powerful magics',
-        discovered=True,
-        species={"origin": "human"},
-        geodynamics={"origin": "mountains"},
-        magictechnology={"origin": "ancient"},
-        img='https://imgur.com/gallery/world123'
     )
 
 
@@ -49,18 +44,18 @@ def test_get_event_happy(mock_event):
     response = client.get(url)
 
     assert response.status_code == 200
-    json = response.json()
+    event = response.json()
 
-    assert type(json) is dict
+    assert type(event) is dict
 
-    assert 'id' in json
-    assert 'description' in json
-    assert 'world_id' in json
-    assert 'location_id' in json
-    assert 'time' in json
+    assert 'id' in event
+    assert 'description' in event
+    assert 'world_id' in event
+    assert 'location_id' in event
+    assert 'time' in event
 
-    assert type(json['id']) is int
-    assert type(json['description']) is str
-    assert type(json['world_id']) is int
-    assert type(json['location_id']) is int
-    assert type(json['time']) is str
+    assert type(event['id']) is int
+    assert type(event['description']) is str
+    assert type(event['world_id']) is int
+    assert type(event['location_id']) is int
+    assert type(event['time']) is str
