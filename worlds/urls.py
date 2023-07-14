@@ -14,24 +14,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 from worlds import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('worlds', views.world_list, name='get_worlds'),
+    path('worlds', views.world_list, name='get_world_list'),
     path('worlds/<int:id>', views.world_detail, name='get_world'),
-    path('locations', views.location_list, name='get_locations'),
+    path('locations', views.location_list, name='get_location_list'),
     path('locations/<int:id>', views.location_detail, name='get_location'),
-    path('characters', views.character_list, name='get_characters'),
+    path('characters', views.character_list, name='get_character_list'),
     path('characters/<int:id>', views.character_detail, name='get_character'),
-    path('events', views.event_list, name='get_events'),
+    path('events', views.event_list, name='get_event_list'),
     path('events/<int:id>', views.event_detail, name='get_event'),
-    path('worlds/<int:id>/locations', views.world_locations_list),
-    path('worlds/<int:world_id>/locations/<int:id>', views.world_location_detail),
-    path('worlds/<int:id>/characters', views.world_characters_list),
-    path('worlds/<int:world_id>/characters/<int:id>', views.world_character_detail),
-    path('worlds/<int:id>/events', views.world_events_list),
-    path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail),
+    path('worlds/<int:id>/locations', views.world_locations_list, name='get_world_location_list'),
+    path('worlds/<int:world_id>/locations/<int:id>', views.world_location_detail, name='get_world_location'),
+    path('worlds/<int:id>/characters', views.world_characters_list, name='get_world_character_list'),
+    path('worlds/<int:world_id>/characters/<int:id>', views.world_character_detail, name='get_world_character'),
+    path('worlds/<int:id>/events', views.world_events_list, name='get_world_event_list'),
+    path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail, name='get_world_event'),
 ]
