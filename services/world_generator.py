@@ -20,7 +20,7 @@ def generate_random_world():
 
     try:
         world_json = json.loads(world_response)
-        world_json = add_dalle_images(world_json)
+        # world_json = add_dalle_images(world_json)
         print(world_json)
 
         related_fields = ['species', 'characters', 'events', 'locations']
