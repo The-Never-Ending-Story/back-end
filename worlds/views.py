@@ -4,12 +4,12 @@ from .serializers import WorldSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .characters.models import Character
-from .characters.serializers import CharacterSerializer
-from .locations.models import Location
-from .locations.serializers import LocationSerializer
-from .events.models import Event
-from .events.serializers import EventSerializer
+from characters.models import Character
+from characters.serializers import CharacterSerializer
+from locations.models import Location
+from locations.serializers import LocationSerializer
+from events.models import Event
+from events.serializers import EventSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
