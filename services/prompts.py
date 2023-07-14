@@ -14,9 +14,7 @@ def gpt_prompt(params):
        
        Your response should follow this structure:
            {{
-            "name": (a creative name based on its features. may be inspired by genre but not directly use genre names),
-            "blurb": (a brief one-liner about the world),
-            "description": (a one paragraph description),
+            "earthly": Boolean,
             "geoDynamics": {{
                 "size": (scope),
                 "climate": (natural conditions)
@@ -26,11 +24,16 @@ def gpt_prompt(params):
                 "technology": (Integer),
                 "genres": [(eg fantasy, sci-fi, _-punk, vaporwave)]  
             }}
+            "name": (a creative name based on its features. may be inspired by genre but not directly use genre names),
+            "blurb": (a brief one-liner about the world),
+            "description": (a one paragraph description),
             "species": [{{
                 "name": (name of species),
                 "description": (description),
                 "politics": (one sentence about their politics),
-                "imagine": (image prompt; each imagine prompt should be a detailed standalone one-paragraph natural language description of appearance only, no names. include appropriate stylistic instructions)")
+                "imagine": (an image prompt: highly detailed, visually and stylistically descriptive, 
+                one paragraph long. each such prompt should be a standalone natural language 
+                description that doesn't refer to the names of the subjects)")
             }}]
             "locations": [{{
                 "type": (eg city, settlement, landmark, monument),
@@ -55,11 +58,7 @@ def gpt_prompt(params):
                 "lore": (description),
                 "imagine": (image prompt)
             }}]
-            "history": [
-                 eg, "The Age of Creation saw the birth of the world and the awakening of its first inhabitants.",
-                 eg, "The Era of Darkness plunged Mythos into chaos, with monsters and dark forces threatening its existence.",
-                 eg, "The Age of Heroes brought forth legendary figures who shaped the world's destiny."
-               ],
-            "imagine": (detailed one-paragraph prompt for a landscape view of the world. no names)
+            "history": [(three strings, each a paragraph long, describing the evolution of the world in ages/epochs/etc, incorporating the above information)],
+            "imagine": (highly detailed, visually and stylistically descriptive, one-paragraph prompt for a landscape view of the world. do not refer to the world or its features by name.)
              }}
        """

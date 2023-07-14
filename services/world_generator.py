@@ -1,11 +1,13 @@
 import json
 from .api_services import gpt_response, midjourney_image
 from .prompts import gpt_prompt
+from .attributes import GENRES, GEODYNAMICS
+import random
 # from worlds.models import World
 
 
 def generate_world(params):
-    world_response = gpt_response(gpt_prompt(params))
+    world_response = gpt_response(gpt_prompt(attributes))
 
     try:
         world_json = json.loads(world_response)
@@ -24,6 +26,18 @@ def generate_world(params):
         Response text: {response}"
         """
         return error
+    
+def attributes():
+    earthly = random.choices(["earthly", "otherworldly"], weights=[0.42, 0.58], k=1)[0]
+    if earthly == "earthly":
+        geodynamics = {
+            "climate": random.sample()
+        }
+    
+    
+
+def aesthetics(earthly):
+    random.sample(GENRES[earthly], random.randint(1,4))
 
 
 response = generate_world(
