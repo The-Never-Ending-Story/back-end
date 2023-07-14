@@ -258,12 +258,12 @@ def world_event_detail(request, world_id, id):
     event.delete()
     return Response(status=status.HTTP_404_NO_CONTENT)
 
-  @csrf_exempt
-  def webhook(request):
-    if request.method == 'POST':
-        payload = json.loads(request.body)
+@csrf_exempt
+def webhook(request):
+  if request.method == 'POST':
+      payload = json.loads(request.body)
 
-        return JsonResponse({'status': 'ok'}, status=200)
-    else:
-        return JsonResponse({'error': 'Invalid request'}, status=400)
+      return JsonResponse({'status': 'ok'}, status=200)
+  else:
+      return JsonResponse({'error': 'Invalid request'}, status=400)
     
