@@ -1,4 +1,4 @@
-GENRES = {
+AESTHETICS = {
 "earthly": [
 "1950s Suburbia",
 "Abstract Tech",
@@ -107,12 +107,11 @@ GENRES = {
 GEODYNAMICS = {
     "climate": {
         "earthly": [
-            "tropical rainforest",
-            "subtropical desert",
-            "temperate forest",
-            "boreal forest (taiga)",
-            "tundra",
-            "polar ice cap",
+            "tropical",
+            "subtropical",
+            "temperate",
+            "taiga",
+            "polar",
             "Mediterranean",
             "monsoon",
             "savanna",
@@ -126,7 +125,7 @@ GEODYNAMICS = {
             "semi-arid",
             "arid"
         ],
-        "twist": [
+        "otherworldly": [
             "crystal-infused",
             "time-distorting",
             "spirit-infused",
@@ -145,7 +144,7 @@ GEODYNAMICS = {
             "obsidian-encrusted"
         ]
     },
-    "landscape": {
+    "landscapes": {
         "earthly": [
             "rolling hills",
             "steep mountains",
@@ -166,12 +165,13 @@ GEODYNAMICS = {
             "fjords",
             "gorges",
             "plateaus",
+            "tundra",
+            "taiga", 
             "canals"
         ],
-        "twist": [
+        "otherworldly": [
             "floating",
-            "lava-flowing",
-            "waterfalls flowing upwards",
+            "flowing upwards",
             "bioluminescent flora",
             "shifting glass",
             "glowing",
@@ -186,5 +186,26 @@ GEODYNAMICS = {
             "echoing with unseen voices",
             "drifting between dimensions"
         ]
+    },
+    "size": {
+        "earthly": ["Dwarf", "Earth-like", "Vast"],
+        "otherworldly": ["Limitless", "Pocket Dimension", "Expanding/Contracting", "Tiny but with Huge Inner Space", "Vast but Dense with Tiny Inner Space"]
+    },
+    "shape": {
+        "earthly": ["Planet"],
+        "otherworldly": ["Cube", "Ringworld", "Dyson Sphere", "Torus", "Flatworld", "Hyperboloid", "Living Planet", "Sentient Nebula", "Star-Whale", "Immaterial Plane", "Tesseract", "Fractal Dimension", "Dreamworld"],
+    },
+    "time": {
+        "earthly": "linear",
+        "otherworldly": ["Timeless", "Eternal Day/Night", "Fluctuating Time Speed", "Retrograde Time", "Non-linear Time", "Simultaneous Past-Present-Future"],
+    },
+    "physics": {
+        "earthly": ["Earthly"],
+        "otherworldly": ["Phasing In/Out", "Temporally Unstable", "Constructed from Ideas", "Constructed from Memories", "Constructed from Emotions"]
+    },
+    "life": {
+        "earthly": ["Flourishing Ecosystems", "High Bio-Diversity", "Endangered Balance"],
+        "otherworldly": ["Single Dominant Species", "Uniform Flora", "Life as Energy", "Life as Information"]
     }
 }
+

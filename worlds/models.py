@@ -1,15 +1,21 @@
 from django.db import models
+from species.models import Species
+from events.models import Event
+from locations.models import Location
+from characters.models import Character
 
 class World(models.Model):
     name = models.CharField(max_length=250)
+    discovered = models.BooleanField(default=False)
+    earthly = models.BooleanField()
+    genres = models.JSONField()
     blurb = models.CharField(max_length=250)
     description = models.TextField()
-    discovered = models.BooleanField(default=False)
-    species = models.JSONField()
     geoDynamics = models.JSONField()
     magicTechnology = models.JSONField()
-    img = models.TextField(default='none')
-    history = models.TextField(default=dict)
+    imagine = models.TextField(default='')
+    img = models.TextField(default='')
+    lore = models.JSONField(default=list)
 
 
     @property
@@ -23,6 +29,10 @@ class World(models.Model):
     @property
     def events(self):
         return self.event_set.all()
+    
+    @property
+    def species(self):
+        return self.species_set.all()
     
     def __str__(self):
         return str(self.id) + " " + self.name
