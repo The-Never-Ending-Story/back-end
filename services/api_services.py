@@ -47,8 +47,6 @@ def imagine(ref, prompt):
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    response = requests.request("POST", url, headers=headers, data=payload)
-
     try:
         return json.loads(response.text)
     except json.JSONDecodeError:
