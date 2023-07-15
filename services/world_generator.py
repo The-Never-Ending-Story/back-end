@@ -153,7 +153,7 @@ def add_midj_images(world):
 def wait_for_image(instance, type=False):
     time.sleep(30)
     if type:
-        while not instance.img.get[type]:
+        while not instance.img.get(type):
             time.sleep(5)
     else:
         while not instance.img:
