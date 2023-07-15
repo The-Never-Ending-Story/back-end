@@ -2,9 +2,9 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 from worlds.models import World
-from worlds.events.models import Event
-from worlds.locations.models import Location
-from worlds.characters.models import Character
+from events.models import Event
+from locations.models import Location
+from characters.models import Character
 
 
 @pytest.fixture
@@ -13,21 +13,19 @@ def mock_worlds():
         name='Magic World',
         blurb='A magical world',
         description='A world of high fantasy and powerful magics',
-        discovered=True,
-        species={"origin": "human"},
-        geoDynamics={"origin": "mountains"},
-        magicTechnology={"origin": "ancient"},
-        img='https://imgur.com/gallery/world123'
+        discovered=False,
+        geoDynamics={'origin': 'mountains'},
+        magicTechnology={'origin': 'ancient'},
+        img={'thumbnail': 'https://imgur.com/gallery/world123'}
     )
     world2 = World.objects.create(
         name='Techno World',
         blurb='A technological world',
         description='A world of advanced technology',
         discovered=True,
-        species={"origin": "human"},
         geoDynamics={"origin": "plains"},
         magicTechnology={"origin": "advanced"},
-        img='https://imgur.com/gallery/world456'
+        img={'thumbnail': 'https://imgur.com/gallery/world456'}
     )
     return world1, world2
 
@@ -156,24 +154,24 @@ def test_get_world_list_happy(mock_worlds):
         assert 'name' in world
         assert 'blurb' in world
         assert 'description' in world
-        assert 'species' in world
         assert 'geoDynamics' in world
         assert 'magicTechnology' in world
         assert 'img' in world
-        assert 'history' in world
-        assert 'events' in world
+        assert 'species' in world
         assert 'locations' in world
         assert 'characters' in world
+        assert 'events' in world
+        assert 'lore' in world
 
         assert type(world['id']) is int
         assert type(world['name']) is str
         assert type(world['blurb']) is str
         assert type(world['description']) is str
-        assert type(world['species']) is dict
         assert type(world['geoDynamics']) is dict
         assert type(world['magicTechnology']) is dict
-        assert type(world['img']) is str
-        assert type(world['history']) is str
-        assert type(world['events']) is list
+        assert type(world['img']) is dict
+        assert type(world['species']) is list
         assert type(world['locations']) is list
         assert type(world['characters']) is list
+        assert type(world['events']) is list
+        assert type(world['lore']) is list

@@ -3,8 +3,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from worlds.models import World
-from worlds.locations.models import Location
-from worlds.characters.models import Character
+from locations.models import Location
+from characters.models import Character
 
 
 @pytest.fixture
@@ -13,6 +13,10 @@ def mock_world():
         name='Magic World',
         blurb='A magical world',
         description='A world of high fantasy and powerful magics',
+        discovered=False,
+        geoDynamics={'origin': 'mountains'},
+        magicTechnology={'origin': 'ancient'},
+        img={'thumbnail': 'https://imgur.com/gallery/world123'}
     )
 
 
@@ -20,10 +24,12 @@ def mock_world():
 def mock_location(mock_world):
     return Location.objects.create(
         name='Magic City',
-        attributes='magical',
-        description='A magical city',
+        type='city',
+        climate='rainy',
+        lore='An ancient city of wonder',
+        imagine='Imagine a city of ancient magics',
         img='https://imgur.com/gallery/location123',
-        world_id=mock_world
+        world=mock_world
     )
 
 
@@ -31,29 +37,31 @@ def mock_location(mock_world):
 def mock_characters(mock_world, mock_location):
     character1 = Character.objects.create(
         name='Joe Bob',
-        race='human',
+        species='human',
         alignment='lawful good',
-        attributes='strong',
-        description='A warrior',
+        age=35,
+        lore='A valiant warrior',
+        imagine='Imagine a strong warrior',
         img='https://imgur.com/gallery/character123',
-        world_id=mock_world,
-        location_id=mock_location
+        location='The forest',
+        world=mock_world,
     )
     character2 = Character.objects.create(
         name='Tim',
-        race='human',
+        species='human',
         alignment='lawful evil',
-        attributes='smart',
-        description='A mage',
-        img='https://imgur.com/gallery/character456',
-        world_id=mock_world,
-        location_id=mock_location
+        age=45,
+        lore='A powerful mage',
+        imagine='Imagine a powerful mage',
+        img='https://imgur.com/gallery/character123',
+        location='The forest',
+        world=mock_world,
     )
     return character1, character2
 
 
 @pytest.mark.django_db
-def test_get_character_happy(mock_characters, mock_world):
+def test_get_character_valid(mock_characters, mock_world):
     client = APIClient()
     url = reverse('get_world_character_list', kwargs={'id': mock_world.id})
     response = client.get(url)
@@ -65,20 +73,24 @@ def test_get_character_happy(mock_characters, mock_world):
     assert len(characters) == 2
 
     for character in characters:
+        assert 'id' in character
         assert 'name' in character
-        assert 'race' in character
+        assert 'species' in character
         assert 'alignment' in character
-        assert 'attributes' in character
-        assert 'description' in character
+        assert 'age' in character
+        assert 'lore' in character
+        assert 'imagine' in character
         assert 'img' in character
-        assert 'world_id' in character
-        assert 'location_id' in character
+        assert 'location' in character
+        assert 'world' in character
 
         assert type(character['id']) is int
         assert type(character['name']) is str
-        assert type(character['race']) is str
+        assert type(character['species']) is str
         assert type(character['alignment']) is str
-        assert type(character['description']) is str
+        assert type(character['age']) is int
+        assert type(character['lore']) is str
+        assert type(character['imagine']) is str
         assert type(character['img']) is str
-        assert type(character['world_id']) is int
-        assert type(character['location_id']) is int
+        assert type(character['location']) is str
+        assert type(character['world']) is int
