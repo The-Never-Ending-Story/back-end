@@ -47,7 +47,12 @@ def imagine(ref, prompt):
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    return json.loads(response.text)
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError:
+        print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
+        return None
+
 
 def upscale_img(id):
     url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
