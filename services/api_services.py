@@ -59,4 +59,4 @@ def upscale_img(id):
 
     response = requests.request("GET", url, headers=headers)
 
-    return response.data["url"]
+    return response.json()["url"]
