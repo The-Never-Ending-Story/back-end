@@ -127,7 +127,8 @@ def add_midj_images(world):
         world.save()
 
         for location in world.locations.all():
-            imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
+            response = imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
+            print(response)
             wait_for_image(location)
             location.img = upscale_img(location.img)
             location.save()
