@@ -10,7 +10,7 @@ def gpt_response(prompt):
     messages = [{"role": "system", "content": "You are an API endpoint. Please respond as a JSON field"},
                 {"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         temperature=1.0,
         max_tokens=3000,
@@ -59,4 +59,4 @@ def upscale_img(id):
 
     response = requests.request("GET", url, headers=headers)
 
-    return response.data["url"]
+    return response.json()["url"]

@@ -24,9 +24,9 @@ Your response should follow this structure:
   }},
   "magicTechnology": {{
     "magicLvl": (Integer),
-    "magic": (add types and powers of magic based on magicLvl),
+    "magic": (add types and powers of magic based on magicLvl as an array of strings),
     "techLvl": (Integer),
-    "technology": (add types and powers of tech)
+    "technology": (add types and powers of tech based on techLvl as an array of strings)
   }},
   "name": (a creative name based on the above features. may be inspired by genre but should not directly use genre names),
   "blurb": (a brief one-liner about the world),

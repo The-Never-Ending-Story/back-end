@@ -75,7 +75,7 @@ def earthly_bool(earthly):
 
 
 def aesthetics_sample(earthly):
-    return random.sample(AESTHETICS[earthly], random.randint(1,4))
+    return random.sample(AESTHETICS[earthly], random.randint(1,3))
 
 
 def size_sample(earthly):
@@ -115,7 +115,8 @@ def add_dalle_images(world):
 
 
 def add_midj_images(world):
-        imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        print(response)
         wait_for_image(world, "thumbnail")
         world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
         world.save()
@@ -154,9 +155,14 @@ def wait_for_image(instance, type=False):
     time.sleep(30)
     if type:
         while not instance.img.get(type):
+            instance.refresh_from_db()
+            print(instance.img)
+            print("waiting...")
             time.sleep(5)
     else:
         while not instance.img:
+            instance.refresh_from_db()
+            print("waiting...")
             time.sleep(5)
 
 
