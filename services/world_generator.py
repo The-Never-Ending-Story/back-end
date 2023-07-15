@@ -115,24 +115,24 @@ def add_dalle_images(world):
 
 
 def add_midj_images(world):
-        imagine({"model": "world", "id": world.id, "type": "thumbnail"}, world.genres.join(" ") + " " + world.description)
+        imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
         wait_for_image(world, "thumbnail")
         world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
         world.save()
         
-        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + world.genres + " " + world.imagine + " --ar 9:3")
+        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
         wait_for_image(world, "landscape")
         world.img["landscape"] = upscale_img(world.img["landscape"])
         world.save()
 
         for location in world.locations.all():
-            imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + world.genres.join(" ") + " " + location.imagine + " --ar 3:4")
+            imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
             wait_for_image(location)
             location.img = upscale_img(location.img)
             location.save()
             
         for species in world.species.all():
-            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + world.genres.join(" ") + " " + species.imagine + " --ar 3:4")
+            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
             wait_for_image(species.img)
             species.img = upscale_img(species.img)
             species.save()
