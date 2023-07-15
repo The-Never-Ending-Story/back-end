@@ -10,7 +10,6 @@ class Character(models.Model):
     img = models.TextField(default='none')
     world = models.ForeignKey("worlds.World", on_delete=models.CASCADE)
     location = models.CharField(max_length=250, default='')
-    # species = models.ForeignKey("species.Species", on_delete=models.CASCADE)
 
 
     def __str__(self):

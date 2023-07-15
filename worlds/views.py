@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from .models import World
 from .serializers import WorldSerializer
@@ -12,7 +13,8 @@ from events.models import Event
 from events.serializers import EventSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
+from django.views.decorators.http import require_POST
+from django.apps import apps
 
 @api_view(['GET', 'POST'])
 def world_list(request):
@@ -281,10 +283,20 @@ def discover_world(request):
 
 
 @csrf_exempt
+@require_POST
 def webhook(request):
-  if request.method == 'POST':
-      payload = json.loads(request.body)
+    data = json.loads(request.body)
+    ref = data.get("ref")
+    temp = data.get("buttonMessageId")
 
-      return JsonResponse({'status': 'ok'}, status=200)
-  else:
-      return JsonResponse({'error': 'Invalid request'}, status=400)
+    if ref:
+      Model = apps.get_model('worlds', ref["model"])
+      instance = Model.objects.get(pk=ref["id"])
+      if ref.get("type"):
+        instance.img[ref["type"]] = temp
+      else:
+        instance.img = temp
+
+      instance.save()
+
+    return JsonResponse({'status': 'ok'}, status=200)
