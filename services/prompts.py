@@ -4,6 +4,8 @@ Please describe a world in vivid detail with the following features:
 
 {params}
 
+If any of the above attributes contradict each other, you may adjust them as needed.
+
 Include descriptions of:
   - the world's landscapes,
   - 1-3 of its major species,
