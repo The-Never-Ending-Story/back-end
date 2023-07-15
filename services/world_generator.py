@@ -5,11 +5,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "world.settings")
 django.setup()
 
 import json
-from .api_services import gpt_response, dalle_image, midjourney_image
+from .api_services import gpt_response, dalle_image, imagine, upscale_img
 from .prompts import gpt_prompt
 from .attributes import AESTHETICS, GEODYNAMICS
 import random
 from worlds.models import World, Event, Location, Character, Species
+import time
 
 
 def generate_random_world():
@@ -39,6 +40,7 @@ def generate_random_world():
             Location.objects.create(world=world, **location)
 
         world.save()
+        add_midj_images(world)
         return world
 
     except json.JSONDecodeError as e:
@@ -112,107 +114,124 @@ def add_dalle_images(world):
         return world
 
 
+def add_midj_images(world):
+        imagine({"model": "world", "id": world.id, "type": "thumbnail"}, world.genres + " " + world.description)
+        wait_for_image(world, "thumbnail")
+        world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
+        world.save()
+        
+        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + world.genres + " " + world.imagine + " --ar 9:3")
+        wait_for_image(world, "landscape")
+        world.img["landscape"] = upscale_img(world.img["landscape"])
+        world.save()
+
+        for location in world.locations.all():
+            imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + world.genres + " " + location.imagine + " --ar 3:4")
+            wait_for_image(location)
+            location.img = upscale_img(location.img)
+            location.save()
+            
+        for species in world.species.all():
+            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + world.genres + " " + species.imagine + " --ar 3:4")
+            wait_for_image(species.img)
+            species.img = upscale_img(species.img)
+            species.save()
+
+            for char in world.characters.filter(species=species):
+                imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
+                wait_for_image(char.img)
+                char.img = upscale_img(char.img)
+                char.save()
+
+        for event in world.events.all():
+            imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
+            wait_for_image(event.img)
+            event.save()
+        
+        return world
+
+def wait_for_image(instance, type=False):
+    time.sleep(30)
+    if type:
+        while not instance.img[type]:
+            time.sleep(5)
+    else:
+        while not instance.img:
+            time.sleep(5)
+
+
+
+
 def generate_this_world():
     world_json = {
-        "earthly": True,
-        "genres": ["Highlandcore", "City Pop", "Elizabethan England"],
-        "geoDynamics": {
-            "size": "Earth-like",
-            "shape": "Planet",
-            "climate": "Tundra",
-            "landscapes": ["Salt flats", "Rocky desert"]
-        },
-        "magicTechnology": {
-            "magicLvl": 10,
-            "magic": ["Elemental manipulation", "Time control", "Mind alteration", "Resurrection", "Realm traveling"],
-            "techLvl": 4,
-            "technology": ["Steampunk apparatus", "Elizabethan-era tools and machinery"]
-        },
-        "name": "HearthGlint",
-        "blurb": "A timeless blend of gritty highland vistas and glimmering cityscapes, binding raw magical prowess with Elizabethan simplicity.",
-        "description": "HearthGlint appears an odd fusion, a world of icy tundra and salt flats, interspersed with rocky deserts. The raw power of elemental magic courses through its veins, as steam-powered contraptions and Elizabethan-era technology elicit an oddly harmonious blend. Its population, though mostly formed of gritty Highlanders and cosmopolitan Urbians, also sees a strange race of salt-formed golems, shaped and given life by arcane forces. These peculiar contrasts make HearthGlint a place where the extraordinary is ordinary, and the mundane is mesmerizing.",
-        "imagine": "Picture wide, crystalline salt flats under an unyielding sun, stretching out to the horizon as far as the eye can see till they blend with the icy tundra. Harsh, rocky cliffs tower over this scenery, keeping watch over the regal cities of gleaming spires veiled in enchanting aurora borealis, their cobblestone streets bustling with the morning market hype.",
-        "species": [
-            {
-            "alignment": "Lawful good",
-            "politics": "Monarchy",
-            "name": "Highlander",
-            "lore": "The Highlanders are a hearty race adapted to the harsh climates; they are stoically resilient, with an innate ability to manipulate rock and ice elements. Their society, steeped in honor and traditions, looks upon magic as the utmost profession.",
-            "imagine": "Visualize a man wearing thick, woolen cloaks, his armored boots resonating against cobblestones. His gaze, as steady and unyielding as the mountain he hails from, holds an unspoken promise of duty and protection."
-            },
-            {
-            "alignment": "Neutral",
-            "politics": "Trade Republic",
-            "name": "Urbian",
-            "lore": "The Urbians are a sophisticated breed, clever manipulators of elemental forces to create mesmerizing illusions and extravagant living conditions. Urbians play pivotal roles in the economic gears of HearthGlint, their society thriving on commerce and innovation.",
-            "imagine": "Imagine a lady dressed in rich velvets and ruffs, an aura of finesse about her. An array of elements dance upon her fingertips, as she arranges them into a magnificent illusion, mimicking the Aurora Borealis."
-            },
-            {
-            "alignment": "True neutral",
-            "politics": "Anarchy",
-            "name": "Saline Golem",
-            "lore": "",
-            "imagine": "Glimpse a statueque creature of glistening salt crystals, its form shimmering under the sun, as it treks solemnly across the salt plains. Curiously aware, it feels the pulse of magic within it, the very essence of its existence."
-            }
-        ],
-        "locations": [
-            {
-            "type": "City",
-            "climate": "Cold",
-            "name": "Iceglen",
-            "lore": "Iceglen, the capital of the Highlanders, boasts towering ice-sculpted buildings set against the stark, icy tundra. Its beating heart lies in its grand castle, sculpted purely of magic-hardened ice.",
-            "imagine": "See a cityscape adorned with towering ice structures, illuminated from within, casting an ethereal glow under the twilight. The grand castle, the labor of magic, stands as a breathtaking masterpiece amidst the glittering snowscape."
-            },
-            {
-            "type": "City",
-            "climate": "Mild",
-            "name": "Mirage",
-            "lore": "Mirage, the Urbian city, is an architectural marvel. The illusion magic that the Urbians wield make the buildings shimmer in the day and glow at night, resulting in a continuous play of light and shadow.",
-            "imagine": "Envision a city sparkling with magic-induced iridescence, its architecture morphing in a dance of illusion. As daylight wanes, the city glows from within, casting its kaleidoscopic brilliance across the cloud-strewn twilight."
-            }
-        ],
-        "characters": [
-            {
-            "species": "Highlander",
-            "age": 38,
-            "alignment": "Lawful good",
-            "name": "Thorgal Frostborn",
-            "lore": "Thorgal is a respected platoon leader in Iceglen, known for his stoic resilience and brilliant tactical mind. He played a crucial role in the great Battle of the Shattered Peaks.",
-            "imagine": "Picture a hardened warrior standing against the backdrop of a frozen landscape. His breath freezes in the cold as he looks upon a towering fortress of icy stalagmites, a silent vow etched in his gaze."
-            },
-            {
-            "species": "Urbian",
-            "age": 32,
-            "alignment": "Neutral",
-            "name": "Elyra Starlight",
-            "lore": "Elyra is a renowned Illusion Mage of Mirage, famed for her artistry and creative vision. Her illusions during the annual Festival of Lights are the city's most anticipated event.",
-            "imagine": "Visualize a lady emanating an otherworldly charisma, her eyes sparkling with magic, as colorful lights dance in the dusk, mirroring the starlit sky in her creation."
-            }
-        ],
-        "events": [
-            {
-            "type": "Battle",
-            "age": "The age of Discord",
-            "time": 1562,
-            "name": "Battle of the Shattered Peaks",
-            "lore": "Led by Thorgal, the Highlanders withstood the onslaught of invading Saline Golems in the icy Shattered Peaks. The Battle culminated in a magical explosion that rendered the Golems inert, securing the Highlander victory.",
-            "imagine": "Visualize warring factions amidst snow-laden peaks under stormy skies. Elemental energy crackles in the tense air as combatants clash, the ensuing explosion illuminates the icy battlefield."
-            },
-            {
-            "type": "Festival",
-            "age": "The age of Harmony",
-            "time": 1597,
-            "name": "Festival of Lights",
-            "lore": "The Urbians annually celebrate the Festival of Lights, where illusion magic is used to fill the city with wondrous sights. Elyra's spectacle during the Festival brought both Highlanders and Urbians together, facilitating unity.",
-            "imagine": "Imagine the city under a cascade of scintillating lights, born of magic, painting the dusk with splashes of crimson and gold, deepening the sense of communal camaraderie."
-            }
-        ],
-        "lore": [
-            "During the Age of Discord, HearthGlint was a land divided. The Highlanders and Urbians, disparate in their lifestyle, dealt with each other through shrewd politics and commerce. The Saline Golems, born out of the very lifeblood of the land, were seen as naturally destructive entities not conforming to societal norms.",
-            "The Age of Battle marked a turning point in the story of HearthGlint. The battle of Shattered Peaks between Highlanders and golems ended in a magical explosion, rendering the golems dormant. This event marked an era of coexistence, leading to closer ties among Highlanders and Urbians, and an understanding that Golems were sentient beings to be respected.",
-            "The Age of Harmony saw the blending of magic and technology reach its pinnacle. The Festival of Lights, yearly celebrated by Urbians, played a significant role in establishing this harmony, making HearthGlint a world where magic isn't just a tool, but a thread that binds its inhabitants in a communal brotherhood."
-        ]
-        }
+  "name": "Abyssia",
+  "earthly": true,
+  "genres": ["Pre-Raphaelite", "Art Nouveau", "Forestpunk"],
+  "img": {
+    "landscape": "https://cdn.discordapp.com/attachments/1128814452012220536/1129471815505424465/hyperloom_Abyssia_is_a_world_tucked_away_within_its_aquamarine__3c94e2c0-790f-4226-881b-1e06dbbc9a5e.png",
+    "thumbnail": "https://cdn.discordapp.com/attachments/1128814452012220536/1129470452780245012/hyperloom_Stepping_ashore_you_find_yourself_encased_in_perpetua_513849bf-0aa4-4b0d-9078-61129fcae8b3.png"
+  },
+  "geoDynamics": {
+    "size": "Dwarf",
+    "shape": "Planet",
+    "climate": "oceanic",
+    "landscapes": ["plateaus", "taiga"]
+  },
+  "magicTechnology": {
+    "magicLvl": 6,
+    "magic": {
+      "Chaos": "Alteration of reality",
+      "Nature": "Manipulation of plants and animals",
+      "Element": "Control over fire, water, earth and air"
+    }, 
+    "techLvl": 8,
+    "technology": {
+      "BioTech": "Genetic modifications",
+      "Inventions": "Steam-powered machines",
+      "InfoTech": "Centralized information network"
+    }
+  },
+  "blurb": "Sea-lapped enigma draped in verdure and shrouded in mystery.",
+  "description": "Abyssia is a world tucked away within its aquamarine oceanic veil, bejeweled with islands of varying sizes and forestry. The gaps between these isles allow space for the expansive teeming marine life, keeping the Abyssian archipelago alive. The exquisite landscapes are concoctions of towering plateaus, silhouetted against twilight, and dense taiga forests, a testament to the potent magic that enhances the verdant vibrancy. The age of steam powers the Abyssian's inventions while they still invoke nature, element, and chaos magics.",
+  "imagine": "Stepping ashore, you find yourself encased in perpetual dawn. Majestic plateau peaks are bathed in orange light, their bare rock faces contrasting with rich verdant taiga at their base. Twisted boughs of ancient trees disappear into an emerald canopy pierced by whimsical shafts of sunlight, while curious steam contraptions whirr away on their predestined tasks. As dusk sets, you see the sparkling ocean stretch far beyond, while thousands of bioluminescent creatures awaken, setting the world aglow.",
+  "species": [{
+    "alignment": "Neutral Good",
+    "politics": "Matriarchal society",
+    "name": "Abythonians",
+    "lore": "Being amphibious in nature, Abythonians harmonize their life between land and sea. They are adept in harnessing both magic and technology to enhance their survival. Their society is led by the Matriarch, an individual known for her superior knowledge of both the land and marine ecosystems.",
+    "imagine": "In the interplay of light, amidst a tangle of branches, figures move with fluid grace. Their elongated limbs, covered in scales glistening in various hues, prove to be as functional in land as they are in water. A unique bioluminescent mark, glowing at the center of their forehead, seems to pulsate with every beat of their heart. Walking by you, they interact with a curious steam contraption that nests amidst the trees, their eyes reflecting unspoken wisdom.",
+    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129483134682017912/hyperloom_Being_amphibious_in_nature_Abythonians_harmonize_thei_0a6ebdbe-0ecd-437a-84f4-d79ef759df6a.png" }],
+  "locations": [{
+    "type": "City",
+    "climate": "Temperate rainforest",
+    "name": "Arbores Altum",
+    "lore": "Arbores Altum, the city built amidst the treetops, demonstrates a remarkable integration of nature. Houses wrapped in flora rely on steam-powered lifts for mobility. It's a pre-Raphaelite vision infused with the animation of forestpunk.",
+    "imagine": "Gaze upwards at a city thriving amidst the canopy. Platforms wrapped in tapestry of foliage, steam powered lifts bustling with activity, weaving their way between the branches. Soft twinkle of bioluminescent plants light the city with a dreamy glow, reflecting off the waterproofed canvases stretched over their fortifications.",
+    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129483528845934682/hyperloom_Gaze_upwards_at_a_city_thriving_amidst_the_canopy._Pl_863e563d-6a6f-46e7-9400-0e58e300adaa.png" }],
+  "characters": [{
+    "species": "Abythonians",
+    "age": 127,
+    "alignment": "Neutral Good",
+    "name": "Nymphaea",
+    "lore": "Nymphaea, the current Matriarch of the Abythonians, is known for her serene wisdom, potent magic skills, and deep connection with nature. She played a pivotal role in the creation of the Abyssian Information Network.",
+    "imagine": "Lingering gaze of a serene figure, enchanting everyone around her. Her iridescent scales glow dimly, a symbol of her mature age. Adroit fingers engage in a magical dance, drawing energy from the atmosphere, while before her a whirl of steam forms intricate patterns, symbolizing her contribution to the fusion of magic and technology.",
+    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129484262329028638/hyperloom_Lingering_gaze_of_a_serene_figure_enchanting_everyone_8215101d-2efd-4ef9-a45d-80022f6e5c8b.png" }],
+  "events": [{
+    "type": "Peace Treaty",
+    "age": "Third Age",
+    "time": "TA 37",
+    "name": "The Pact of Coexistence",
+    "lore": "This pact marked the end of the wars amongst the Abyssian sub-species. The treaty emphasized on mutual survival, marking the birth of the Union of Abyssia.",
+    "imagine": "Picture the twilight-soaked plateau, where two figures stand against each other. Their palms glow with magical symbols, indicating their binding oath. Around them gather their kin, awestruck as the spectacle of harmony unfolds before the setting sun.",
+    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129484637786341427/hyperloom_Picture_the_twilight-soaked_plateau_where_two_figures_58fa4aa5-8cc3-4989-ac28-c84bde24b488.png" }],
+    "lore": [
+    "Era of Emergence: The first epoch marks the rise of the Abythonians. Fierce competition for resources led to the discovery of magic and technology, intertwining the society into a web of politics and power struggles. The Abythonians soon learned to adapt and carve out territories within their confines.",
+    
+    "Age of Enlightenment: During the second epoch, the Abythonians embraced their magic-technology blend. This age saw the construction of the city Arbores Altum and the blossoming of knowledge, with the invention of the Abyssian Information Network. Under Nymphaea's leadership, the Abythonians explored the depths of their abilities, found balance with the environment, and sparked rapid progress and growth.",
+    
+    "The Union Age: Brought about by the Pact of Coexistence, the third epoque marked the end of internal conflict between the Abythonians. The epoch ushered in an era of peace, harmony, and shared survival amongst the Abyssian sub-species."
+  ]
+}
 
     related_fields = ['species', 'characters', 'events', 'locations']
     world_info = {k: v for k, v in world_json.items() if k not in related_fields}
@@ -235,3 +254,6 @@ def generate_this_world():
     
 world = generate_random_world()
 print(world)
+
+# img = midjourney_image("a wormhole to another dimension")
+# print(img)

@@ -31,12 +31,12 @@ def dalle_image(prompt):
     return image_url
 
 
-def midjourney_image(prompt):
+def imagine(ref, prompt):
     url = "https://api.thenextleg.io/v2/imagine"
 
     payload = json.dumps({
         "msg": prompt,
-        "ref": "",
+        "ref": ref,
         "webhookOverride": "",
         "ignorePrefilter": "false"
     })
@@ -48,3 +48,15 @@ def midjourney_image(prompt):
     response = requests.request("POST", url, headers=headers, data=payload)
 
     return response.text
+
+def upscale_img(id):
+    url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
+
+    headers = {
+        'Authorization': f'Bearer {MIDJ_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    return response.data["url"]
