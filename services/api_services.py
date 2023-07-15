@@ -47,7 +47,7 @@ def imagine(ref, prompt):
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    return response.text
+    return json.loads(response.text)
 
 def upscale_img(id):
     url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
