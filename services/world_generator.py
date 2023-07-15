@@ -115,7 +115,8 @@ def add_dalle_images(world):
 
 
 def add_midj_images(world):
-        imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        print(response)
         wait_for_image(world, "thumbnail")
         world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
         world.save()
