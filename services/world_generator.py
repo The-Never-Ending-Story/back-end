@@ -75,7 +75,7 @@ def earthly_bool(earthly):
 
 
 def aesthetics_sample(earthly):
-    return random.sample(AESTHETICS[earthly], random.randint(1,4))
+    return random.sample(AESTHETICS[earthly], random.randint(1,3))
 
 
 def size_sample(earthly):
