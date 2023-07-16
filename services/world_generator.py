@@ -77,6 +77,7 @@ def add_midj_images(world_id):
                 response = imagine({"model": "location", "id": location.id}, 
                     thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " + 
                     ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
+                time.sleep(2)
                 
             locations.append(response)
         
@@ -89,6 +90,7 @@ def add_midj_images(world_id):
                 response = imagine({"model": "species", "id": species.id}, 
                     thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " +
                     ' '.join(world.genres) + " " + species.imagine + " --iw .55 --ar 3:4")
+                time.sleep(2)
             print(response)
             species.append(response)
 
@@ -111,6 +113,7 @@ def add_midj_images(world_id):
                 response = imagine({"model": "character", "id": char.id}, 
                     random.sample(locations, 1)[0]["imageUrl"] + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
+                time.sleep(2)
                 
             chars.append(response)
 
