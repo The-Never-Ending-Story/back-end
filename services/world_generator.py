@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")
 django.setup()
 
 import json
-from .api_services import gpt_response, dalle_image, imagine, upscale_img
+from .api_services import gpt_response, dalle_image, imagine, upscale_img, get_progress
 from .prompts import gpt_prompt
 from .attributes import AESTHETICS, GEODYNAMICS
 import random
@@ -51,66 +51,48 @@ def generate_random_world():
         return error
     
 def add_midj_images(world):
-        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " landscape view of this world: " + world.imagine)
-        print(response)
-        wait_for_image(world, "thumbnail")
-        world.refresh_from_db()
-        for _ in range(5):
-            try:
-                world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
-                world.save()
-                break
-            except Exception as e:
-                print(e)
-                time.sleep(5)
-                world.refresh_from_db()
+        thumbnail = {}
 
+        while not thumbnail["success"] == True:
+            thumbnail = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, 
+                ' '.join(world.genres) + " landscape view of this world: " + world.imagine)
+        print(thumbnail)
+        wait_for_image(thumbnail)
         
-        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
-        wait_for_image(world, "landscape")
-        world.refresh_from_db()
-        for _ in range(5):
-            try:
-                world.img["landscape"] = upscale_img(world.img["landscape"])
-                world.save()
-                break
-            except Exception as e:
-                print(e)
-                time.sleep(5)
-                world.refresh_from_db()
+        landscape = {}
+
+        while not landscape["success"] == True:
+            landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
+                thumbnail["imageUrl"] + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
+            
+        wait_for_image(landscape)
+
+        locations = []
 
         for location in world.locations.all():
-            response = imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
-            print(response)
-            wait_for_image(location)
-            location.refresh_from_db()
-            for _ in range(5):
-                try:
-                    location.img = upscale_img(location.img)
-                    location.save()
-                    break
-                except Exception as e:
-                    print(e)
-                    time.sleep(5)
-                    location.refresh_from_db()
-            
-            
+            response = {}
+            while not response["success"] == True:
+                response = imagine({"model": "location", "id": location.id}, 
+                    thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " + 
+                    ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
+                
+            locations.append(response)
+        
+        wait_for_image(locations.last)
+
+        species = {} 
         for species in world.species.all():
-            response = imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
+            response = {}
+            while not response["success"] == True:
+                response = imagine({"model": "species", "id": species.id}, 
+                    thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " +
+                    ' '.join(world.genres) + " " + species.imagine + " --iw .55 --ar 3:4")
             print(response)
-            wait_for_image(species)
-            species.refresh_from_db()
-            for _ in range(5):
-                try:
-                    species.img = upscale_img(species.img)
-                    species.save()
-                    break
-                except Exception as e:
-                    print(e)
-                    time.sleep(5)
-                    species.refresh_from_db()
+            species.append(response)
 
+        wait_for_image(species.last)
 
+        chars = {}
         for char in world.characters.all():
             try:
                 species = world.species.get(name=char.species)
@@ -120,61 +102,28 @@ def add_midj_images(world):
                 except Species.DoesNotExist:
                     species = None
 
-            if species:
-                response = imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + ' '.join(world.genres) + " " + char.imagine + " --ar 3:4")
-                print(response)
-            else:
-                response = imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + char.imagine + " --ar 3:4")
-                print(response)
+            response = {}
+            species_url = species.img if species else random.sample(world.species, 1)[0].img
+
+            while not response["success"] == True:
+                response = imagine({"model": "character", "id": char.id}, 
+                    random.sample(locations, 1)[0]["imageUrl"] + " " + species_url +
+                    ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
                 
-            wait_for_image(char)
-            char.refresh_from_db()
-
-            for _ in range(5):
-                try:
-                    char.img = upscale_img(char.img)
-                    char.save()
-                    break
-                except Exception as e:
-                    print(e)
-                    time.sleep(5)
-                    char.refresh_from_db()
+            chars.append(response)
 
 
-        for event in world.events.all():
-            imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + event.imagine + " --ar 3:4")
-            wait_for_image(event)
-            event.refresh_from_db()
-            for _ in range(5):
-                try:
-                    event.img = upscale_img(event.img)
-                    event.save()
-                    break
-                except Exception as e:
-                    print(e)
-                    time.sleep(5)
-                    event.refresh_from_db()
-            event.img = upscale_img(event.img)
-            event.save()
-        
-        return world
 
-def wait_for_image(instance, type=False):
-    time.sleep(45)
-    instance.refresh_from_db()
-    if type:
-        while not instance.img.get(type):
-            print(instance.img)
-            print("waiting...")
-            time.sleep(5)
-            instance.refresh_from_db()
-    else:
-        while (not instance.img or instance.img == "none"):
-            print(instance.img)
-            print("waiting...")
-            time.sleep(5)
-            instance.refresh_from_db()
-    instance.refresh_from_db()
+def wait_for_image(msg):
+    time.sleep(42)
+    
+    msg = get_progress(msg["messageId"])
+
+    while not msg["progress"] == 100:
+        print("waiting for job to finish...")
+        time.sleep(4)
+        msg = get_progress(msg["messageId"])
+
     
 
 def random_attributes():
