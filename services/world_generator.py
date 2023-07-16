@@ -53,6 +53,8 @@ def generate_random_world():
 def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
 
+    world.imgs = {}
+
     thumbnail, landscape = world.img.get("thumbnail"), world.img.get("landscape")
     if thumbnail is not None and not thumbnail.startswith("https"):
         thumbnail = {}
