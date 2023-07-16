@@ -8,6 +8,7 @@ class Character(models.Model):
     lore = models.TextField()
     imagine = models.TextField()
     img = models.TextField(default='none')
+    imgs = models.JSONField(default=list)
     world = models.ForeignKey("worlds.World", on_delete=models.CASCADE)
     location = models.CharField(max_length=250, default='')
 

@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")
 django.setup()
 
 import json
-from .api_services import gpt_response, dalle_image, imagine, upscale_img, get_progress
+from .api_services import gpt_response, dalle_image, imagine, get_progress
 from .prompts import gpt_prompt
 from .attributes import AESTHETICS, GEODYNAMICS
 import random
@@ -40,7 +40,7 @@ def generate_random_world():
             Location.objects.create(world=world, **location)
 
         world.save()
-        add_midj_images(world.id)
+        add_midj_images(world)
         return world
 
     except json.JSONDecodeError as e:
@@ -50,9 +50,7 @@ def generate_random_world():
         """
         return error
     
-def add_midj_images(world_id):
-        world = World.objects.get(id=world_id)
-
+def add_midj_images(world):
         thumbnail = {}
 
         while not thumbnail.get("success", False):
@@ -145,7 +143,8 @@ def wait_for_image(msg):
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
-      print("ding! job finished." + update["response"])
+      print("ding! job finished.")
+      print(update["response"])
       return update["response"]
     
     else:
