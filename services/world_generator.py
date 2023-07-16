@@ -52,10 +52,12 @@ def generate_random_world():
 
 def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
+    
+    world_img = {"thumbnail": world.img.get("thumbnail"), "landscape": world.img.get("landscape")}
+    world_imgs = {"thumbnails": world.imgs.get("thumbnails"), "landscapes": world.imgs.get("landscapes")}
+    thumbnail = world_img["thumbnail"]
+    landscape = world_img["landscape"]
 
-    world.imgs = {}
-
-    thumbnail, landscape = world.img.get("thumbnail"), world.img.get("landscape")
     if thumbnail is not None and not thumbnail.startswith("https"):
         thumbnail = {}
         while not thumbnail.get("success", False):
@@ -70,13 +72,12 @@ def add_midj_images(world):
         thumbnail = wait_for_image(thumbnail)
         print(thumbnail)
         if thumbnail != "none":
-            print(world.imgs)
-            world.imgs["thumbnails"] = thumbnail["imageUrls"]      
-            thumbnail = thumbnail["imageUrls"][0]
+            world_imgs["thumbnails"] = thumbnail["imageUrls"] 
+            world_img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
 
     else:
         base_url = thumbnail[:-1]
-        world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+        world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     if landscape is not None and not landscape.startswith("https"):
         landscape = {}
@@ -88,12 +89,15 @@ def add_midj_images(world):
         
         landscape = wait_for_image(landscape)
         if landscape != "none":
-            world.imgs["landscapes"] = landscape["imageUrls"]
-            landscape = landscape["imageUrls"][0]
+            world_imgs["landscapes"] = landscape["imageUrls"]
+            world_img["landscape"] = landscape = landscape["imageUrls"][0]
 
     else:
         base_url = landscape[:-1]
-        world.imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+        world["imgs"]["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+      
+    world.img, world.imgs = world_img, world_imgs
+    world.save()
     
     locations = world.locations.filter(img="none")
     locations_responses = []
@@ -106,10 +110,13 @@ def add_midj_images(world):
                 ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
             if response.get("success", False):
                 time.sleep(2)
+        location.imgs = response["imageUrls"] 
+        location.img = response["imageUrls"][0]
         locations_responses.append(response)
     
     for i in range(len(locations_responses)):
         locations_responses[i] = wait_for_image(locations_responses[i])
+
             
     species_list = world.species.filter(img="none")
     species_responses = []
@@ -195,7 +202,7 @@ def wait_for_image(msg):
             update = get_progress(msg["messageId"])
             if update["progress"] == "incomplete":
                 print('woops! job hanging, moving on..')
-                return 'none'
+                return 'incomplete'
 
         print("ding! job finished.")
         return update["response"]
