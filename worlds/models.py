@@ -14,8 +14,8 @@ class World(models.Model):
     geoDynamics = models.JSONField(default=dict)
     magicTechnology = models.JSONField(default=dict)
     imagine = models.TextField(default='')
-    img = models.JSONField(default={"thumbnail": "", "landscape": ""})
-    imgs = models.JSONField(default={"thumbnails": [], "landscapes": []})
+    img = models.JSONField(default=dict)
+    imgs = models.JSONField(default=dict)
     lore = models.JSONField(default=list)
 
 
