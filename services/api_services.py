@@ -84,5 +84,9 @@ def get_progress(msgid):
     }
 
     response = requests.request("GET", url, headers=headers)
-
-    return(response.text)
+    print(response)
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError:
+        print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
+        return None
