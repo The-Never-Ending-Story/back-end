@@ -54,7 +54,7 @@ def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
     world_img = world.img
-    world_imgs = world.imgs if not world.imgs == [] else {}
+    world_imgs = world.imgs if isinstance(world.imgs, dict) else {}
 
     thumbnail = world_img.get("thumbnail")
     landscape = world_img.get("landscape")
