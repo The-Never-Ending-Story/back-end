@@ -64,8 +64,11 @@ def add_midj_images(world):
             if thumbnail.get("success", False):
                 time.sleep(2)
 
+        print(thumbnail)
         thumbnail = wait_for_image(thumbnail)
+        print(thumbnail)
         if thumbnail != "none":
+            print(world.imgs)
             world.imgs["thumbnails"] = thumbnail["imageUrls"]      
             thumbnail = thumbnail["imageUrls"][0]
 
