@@ -15,7 +15,7 @@ class World(models.Model):
     magicTechnology = models.JSONField(default=dict)
     imagine = models.TextField(default='')
     img = models.JSONField(default=dict)
-    imgs = models.JSONField(default=list)
+    imgs = models.JSONField(default=dict)
     lore = models.JSONField(default=list)
 
 
