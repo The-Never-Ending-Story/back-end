@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")
 django.setup()
 
 import json
-from .api_services import gpt_response, dalle_image, imagine, get_progress
+from .api_services import gpt_response, dalle_image, imagine, get_progress, upscale_img
 from .prompts import gpt_prompt
 from .attributes import random_attributes
 from django.db.models import Q
@@ -64,36 +64,44 @@ def add_midj_images(world):
         world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif thumbnail is not None and not thumbnail.startswith("https"):
-        thumbnail = {}
-        while not thumbnail.get("success", False):
-            thumbnail = imagine(
-                {"model": "world", "id": world.id, "type": "thumbnail"},
-                ' '.join(world.genres) + " landscape view of this world: " + world.imagine
-            )
-            if thumbnail.get("success", False):
-                time.sleep(2)
+        thumbnail = upscale_img(thumbnail)
+        if isinstance(thumbnail, str) and thumbnail.startswith('https'):
+            world.img["thumbnail"] = thumbnail
+        else:
+            thumbnail = {}
+            while not thumbnail.get("success", False):
+                thumbnail = imagine(
+                    {"model": "world", "id": world.id, "type": "thumbnail"},
+                    ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+                )
+                if thumbnail.get("success", False):
+                    time.sleep(2)
 
-        thumbnail = wait_for_image(thumbnail)
-        print(thumbnail)
-        if thumbnail != "none":
-            world.imgs["thumbnails"] = thumbnail["imageUrls"]
-            world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
+            thumbnail = wait_for_image(thumbnail)
+            if thumbnail != "none":
+                world.imgs["thumbnails"] = thumbnail["imageUrls"]
+                world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
 
-    if landscape is not None and not landscape.startswith("https"):
-        landscape = {}
-        while not landscape.get("success", False):
-            landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
-                thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
-            if landscape.get("success", False):
-                time.sleep(2)
+    if landscape is not None and landscape.startswith("https"):
+        base_url = thumbnail[-1:]
+        world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+    
+    elif landscape is not None and not landscape.startswith("https"):
+        landscape = upscale_img(landscape)
+        if isinstance(landscape, str) and landscape.startswith('https'):
+            world.img["landscape"] = landscape
+        else:
+            landscape = {}
+            while not landscape.get("success", False):
+                landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
+                    thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
+                if landscape.get("success", False):
+                    time.sleep(2)
         
-        landscape = wait_for_image(landscape)
-        if landscape != "none":
-            world.imgs["landscapes"] = landscape["imageUrls"]
-            if landscape["imageUrls"]:
-                landscape = landscape["imageUrls"][0]
-            else:
-                landscape = None
+            landscape = wait_for_image(landscape)
+            if landscape != "none":
+                world.imgs["landscapes"] = landscape["imageUrls"]
+                world.imgs["landscape"] = landscape["imageUrls"][0]
       
     locations = world.locations.filter(img="none")
     locations_responses = []
