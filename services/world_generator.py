@@ -84,7 +84,7 @@ def add_midj_images(world_id):
         wait_for_image(locations[-1])
         for location in locations:
             if location.get("messageId"):
-                while get_progress(location["messageId"]["progress"]) != 100:
+                while get_progress(location["messageId"])["progress"] != 100:
                   time.sleep(2)
                   location = get_progress(location["messageId"]) 
                 
@@ -103,7 +103,7 @@ def add_midj_images(world_id):
         wait_for_image(species[-1])
         for speciez in species:
             if speciez.get("messageId"):
-                while get_progress(speciez["messageId"]) != 100:
+                while get_progress(speciez["messageId"])["progress"] != 100:
                   time.sleep(2)
                   speciez = get_progress(speciez["messageId"])
 
