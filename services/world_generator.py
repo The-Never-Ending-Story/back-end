@@ -40,7 +40,7 @@ def generate_random_world():
             Location.objects.create(world=world, **location)
 
         world.save()
-        add_midj_images(world)
+        add_midj_images(world.id)
         return world
 
     except json.JSONDecodeError as e:
@@ -50,7 +50,9 @@ def generate_random_world():
         """
         return error
     
-def add_midj_images(world):
+def add_midj_images(world_id):
+        world = World.objects.get(id=world_id)
+
         thumbnail = {}
 
         while not thumbnail.get("success", False):
@@ -116,13 +118,16 @@ def add_midj_images(world):
 
 def wait_for_image(msg):
     time.sleep(42)
-    
-    msg = get_progress(msg["messageId"])
-
-    while not msg["progress"] == 100:
-        print("waiting for job to finish...")
-        time.sleep(4)
+    print(msg)
+    if "messageId" in msg:
         msg = get_progress(msg["messageId"])
+        while not msg["progress"] == 100:
+            print("waiting for job to finish...")
+            time.sleep(4)
+            msg = get_progress(msg["messageId"])
+    else:
+        print("Error: Message does not contain a messageId. Message: ", msg)
+
 
     
 
