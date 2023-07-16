@@ -53,15 +53,19 @@ def generate_random_world():
 
 def add_midj_images(world):
     thumbnail = landscape = {}
-    if (world.get("img") and world["img"].get("landscape")):
-        thumbnail, landscape = world.img["thumbnail"], world.img["landscape"]
-    else: 
+    img = world.get("img")
+    
+    if isinstance(img, dict) and img.get("landscape"):
+        thumbnail, landscape = img["thumbnail"], img["landscape"]
+    else:
         while not thumbnail.get("success", False):
-            thumbnail = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, 
-                ' '.join(world.genres) + " landscape view of this world: " + world.imagine)
+            thumbnail = imagine(
+                {"model": "world", "id": world.id, "type": "thumbnail"},
+                ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+            )
             if thumbnail.get("success", False):
                 time.sleep(2)
-
+                
         thumbnail = wait_for_image(thumbnail)
         print(thumbnail)
         thumbnail = thumbnail["imageUrls"][0]
