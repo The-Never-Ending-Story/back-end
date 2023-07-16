@@ -160,13 +160,13 @@ def wait_for_image(msg):
             return 'none'
 
         progress = get_progress(msg["messageId"])["progress"]
-        if isinstance(progress, str):
+        if isinstance(progress, str) and progress != 'incomplete':
             progress = int(progress)
-
-        if progress < 10:
-            print("job started, brb...")
-            time.sleep(42)
-            update = get_progress(msg["messageId"])
+            
+            if progress < 10:
+                print("job started, brb...")
+                time.sleep(42)
+                update = get_progress(msg["messageId"])
 
         while not update["progress"] == 100:
             print(f'hol up, job cookin.. {update["progress"]}%')
