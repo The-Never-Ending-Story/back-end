@@ -310,11 +310,11 @@ def add_dalle_images(world):
 # world = generate_random_world()
 # print(world)
 
-# worlds = Event.objects.filter(img='').values_list('world__id', flat=True).distinct()
-worlds = World.objects.filter(imgs=[])
+worlds = World.objects.all()
 for i, world in enumerate(worlds):
     print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} incomplete worlds')
     add_midj_images(world)
+print("holy cow, that's all folks!!")
 
 
 # while True:
