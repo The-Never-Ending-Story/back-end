@@ -54,7 +54,7 @@ def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
     world_img = {"thumbnail": world.img.get("thumbnail"), "landscape": world.img.get("landscape")}
-    world.imgs = {"thumbnails"}
+    world.imgs = {}
 
     thumbnail = world_img["thumbnail"]
     landscape = world_img["landscape"]
