@@ -50,8 +50,9 @@ def generate_random_world():
         """
         return error
     
+
 def add_midj_images(world):
-        thumbnail = {}
+        thumbnail = world.get("img")["thumbnail"]
 
         while not thumbnail.get("success", False):
             thumbnail = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, 
@@ -86,7 +87,6 @@ def add_midj_images(world):
         
         for i in range(len(locations)):
             locations[i] = wait_for_image(locations[i])
-            print(locations[i])
 
         print(locations)
                 
@@ -103,7 +103,6 @@ def add_midj_images(world):
 
         for i in range(len(species_list)):
             species_list[i] = wait_for_image(species_list[i])
-            print(species_list[i])
 
         print(species_list)
 
@@ -124,7 +123,7 @@ def add_midj_images(world):
 
             while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
-                    locations_url + " " + species_url +
+                    locations_url + " " + species_url + " " +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
                 if response.get("success", False):
                   time.sleep(2) 
