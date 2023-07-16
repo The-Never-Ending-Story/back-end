@@ -93,7 +93,7 @@ def add_midj_images(world):
         species_list = []
         for speciez in world.species.all():
             response = {}
-            while response.get("success", False):
+            while not response.get("success", False):
                 response = imagine({"model": "species", "id": speciez.id}, 
                     thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " +
                     ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4")
@@ -122,7 +122,7 @@ def add_midj_images(world):
             species_url = char_species.img if char_species else world.species.order_by('?').first().img
             locations_url = world.locations.order_by('?').first().img
 
-            while response.get("success", False):
+            while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
                     locations_url + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
