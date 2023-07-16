@@ -52,7 +52,7 @@ Your response should follow this structure:
   }}],
   "characters": [{{
     "species": (name of species),
-    "age": (Integer),
+    "age": (must be an Integer),
     "alignment": (DnD alignment),
     "name": (name),
     "lore": (description),
