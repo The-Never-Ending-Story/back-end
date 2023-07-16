@@ -51,7 +51,7 @@ def generate_random_world():
         return error
     
 def add_midj_images(world):
-        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, "landscape view of this world" + ' '.join(world.genres) + " " + world.imagine)
+        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, "landscape view of this world: " + ' '.join(world.genres) + " " + world.imagine)
         print(response)
         wait_for_image(world, "thumbnail")
         world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
@@ -71,19 +71,19 @@ def add_midj_images(world):
             
         for species in world.species.all():
             imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
-            wait_for_image(species.img)
-            species.img = upscale_img(species.img)
+            wait_for_image(species)
+            species.img = upscale_img(species)
             species.save()
 
             for char in world.characters.filter(species=species):
                 imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
-                wait_for_image(char.img)
-                char.img = upscale_img(char.img)
+                wait_for_image(char)
+                char.img = upscale_img(char)
                 char.save()
 
         for event in world.events.all():
             imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
-            wait_for_image(event.img)
+            wait_for_image(event)
             event.save()
         
         return world
