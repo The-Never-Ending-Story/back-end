@@ -298,6 +298,8 @@ def webhook(request):
 
       instance = Model.objects.get(pk=ref["id"])
       image_urls = data.get("imageUrls")
+
+      # instance.imgs = image_urls
       
       if ref.get("type"):
         instance.img[ref["type"]] = image_urls[0]
