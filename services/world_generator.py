@@ -65,7 +65,7 @@ def add_midj_images(world_id):
 
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
-                thumbnail["imageUrl"] + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
+                thumbnail["imageUrls"][0] + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
             
         landscape = wait_for_image(landscape)
 
@@ -75,26 +75,32 @@ def add_midj_images(world_id):
             response = {}
             while not response.get("success", False):
                 response = imagine({"model": "location", "id": location.id}, 
-                    thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " + 
+                    thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " + 
                     ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
                 time.sleep(2)
                 
             locations.append(response)
         
-        wait_for_image(locations.last)
+        wait_for_image(locations[-1])
+        for location in locations:
+            if location.get("messageId"):
+                location = get_progress(location["messageId"]) 
 
         species = []
         for species in world.species.all():
             response = {}
             while not response.get("success", False):
                 response = imagine({"model": "species", "id": species.id}, 
-                    thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " +
+                    thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " +
                     ' '.join(world.genres) + " " + species.imagine + " --iw .55 --ar 3:4")
                 time.sleep(2)
             print(response)
             species.append(response)
 
-        wait_for_image(species.last)
+        wait_for_image(species[-1])
+        for speciez in species:
+            if speciez.get("messageId"):
+                speciez = get_progress(speciez["messageId"])
 
         chars = []
         for char in world.characters.all():
@@ -111,7 +117,7 @@ def add_midj_images(world_id):
 
             while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
-                    random.sample(locations, 1)[0]["imageUrl"] + " " + species_url +
+                    random.sample(locations, 1)[0]["imageUrls"] + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
                 time.sleep(2)
                 
