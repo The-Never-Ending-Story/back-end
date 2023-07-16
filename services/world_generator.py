@@ -51,7 +51,7 @@ def generate_random_world():
         return error
     
 def add_midj_images(world):
-        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, "landscape view of this world" + ' '.join(world.genres) + " " + world.imagine)
         print(response)
         wait_for_image(world, "thumbnail")
         world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
