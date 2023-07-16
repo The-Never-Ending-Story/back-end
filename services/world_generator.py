@@ -93,10 +93,11 @@ def add_midj_images(world):
         world.imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif landscape is not None and isinstance(landscape, str):
-        landscape = upscale_img(landscape)
-        if isinstance(landscape, str) and landscape.startswith('https'):
-            world.img["landscape"] = landscape
-        else:
+        try: 
+            landscape = upscale_img(landscape)
+            if isinstance(landscape, str) and landscape.startswith('https'):
+                world.img["landscape"] = landscape
+        except: 
             landscape = None
     elif landscape is None or not isinstance(landscape, str):
         landscape = {}
