@@ -59,11 +59,11 @@ def add_midj_images(world):
     thumbnail = world_img["thumbnail"]
     landscape = world_img["landscape"]
 
-    if thumbnail is not None and thumbnail.startswith("https"):
+    if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
         base_url = thumbnail[-1:]
         world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
-    elif thumbnail is not None and not thumbnail.startswith("https"):
+    elif thumbnail is not None and isinstance(thumbnail, str):
         thumbnail = upscale_img(thumbnail)
         if isinstance(thumbnail, str) and thumbnail.startswith('https'):
             world.img["thumbnail"] = thumbnail
@@ -81,12 +81,14 @@ def add_midj_images(world):
             if thumbnail != "none":
                 world.imgs["thumbnails"] = thumbnail["imageUrls"]
                 world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
+            else:
+                world.img["thumbnail"], world.imgs["thumbnails"] = "none", []
 
-    if landscape is not None and landscape.startswith("https"):
+    if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
         base_url = thumbnail[-1:]
         world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
-    elif landscape is not None and not landscape.startswith("https"):
+    elif landscape is not None and isinstance(landscape, str):
         landscape = upscale_img(landscape)
         if isinstance(landscape, str) and landscape.startswith('https'):
             world.img["landscape"] = landscape
@@ -101,7 +103,9 @@ def add_midj_images(world):
             landscape = wait_for_image(landscape)
             if landscape != "none":
                 world.imgs["landscapes"] = landscape["imageUrls"]
-                world.imgs["landscape"] = landscape["imageUrls"][0]
+                world.img["landscape"] = landscape = landscape["imageUrls"][0]
+            else:
+                world.img["landscape"], world.imgs["landscapes"] = "none", []
       
     locations = world.locations.filter(img="none")
     locations_responses = []
