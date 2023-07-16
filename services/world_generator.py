@@ -88,8 +88,6 @@ def add_midj_images(world):
     
     for i in range(len(locations_responses)):
         locations_responses[i] = wait_for_image(locations_responses[i])
-
-    print(locations)
             
     species_list = world.species.filter(img="none")
     species_responses = []
@@ -127,7 +125,7 @@ def add_midj_images(world):
             if response.get("success", False):
               time.sleep(2) 
 
-    events = world.events.filter(img__isnull=True)
+    events = world.events.filter(img='')
     for event in events:
         event_location = None
         try:
