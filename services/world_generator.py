@@ -81,14 +81,9 @@ def add_midj_images(world_id):
                 
             locations.append(response)
         
-        wait_for_image(locations[-1])
         for location in locations:
-            if location.get("messageId"):
-                while get_progress(location["messageId"])["progress"] != 100:
-                  time.sleep(2)
-                  location = get_progress(location["messageId"]) 
+          wait_for_image(location)
                 
-
         species = []
         for single_species in world.species.all():
             response = {}
@@ -100,12 +95,8 @@ def add_midj_images(world_id):
             print(response)
             species.append(response)
 
-        wait_for_image(species[-1])
         for single_species in species:
-            if single_species.get("messageId"):
-                while get_progress(single_species["messageId"])["progress"] != 100:
-                    time.sleep(2)
-                    single_species = get_progress(single_species["messageId"])
+            wait_for_image(single_species)
 
         chars = []
         for char in world.characters.all():
@@ -122,7 +113,7 @@ def add_midj_images(world_id):
 
             while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
-                    random.sample(locations, 1)[0]["imageUrls"] + " " + species_url +
+                    random.sample(locations, 1)[0]["imageUrls"][0] + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
                 time.sleep(2)
                 
@@ -131,12 +122,12 @@ def add_midj_images(world_id):
 
 def wait_for_image(msg):
     if "messageId" in msg:
-      print(msg)
       if get_progress(msg["messageId"])["progress"] < 10:
+        print("job started, brb")
         time.sleep(42)
       update = get_progress(msg["messageId"])
       while not update["progress"] == 100:
-            print("waiting for job to finish...")
+            print("hol up, job cookin")
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
