@@ -151,6 +151,8 @@ def wait_for_image(msg):
             print(f'hol up, job cookin.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
+            if update["progress"] == "incomplete":
+                return ("woops! job hanging, moving on.")
 
       print("ding! job finished.")
       return update["response"]
@@ -224,5 +226,12 @@ def add_dalle_images(world):
 # world = generate_random_world()
 # print(world)
 
-world = World.objects.get(id=84)
-add_midj_images(world)
+worlds = World.objects.all()
+for world in worlds:
+    add_midj_images(world)
+while True:
+    try:
+        new_world = generate_random_world()
+        print(new_world)
+    except Exception as e:
+        print(f"Error generating new world: {e}")
