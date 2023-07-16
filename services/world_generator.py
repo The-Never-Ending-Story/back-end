@@ -68,21 +68,23 @@ def add_midj_images(world):
         if isinstance(thumbnail, str) and thumbnail.startswith('https'):
             world.img["thumbnail"] = thumbnail
         else:
-            thumbnail = {}
-            while not thumbnail.get("success", False):
-                thumbnail = imagine(
-                    {"model": "world", "id": world.id, "type": "thumbnail"},
-                    ' '.join(world.genres) + " landscape view of this world: " + world.imagine
-                )
-                if thumbnail.get("success", False):
-                    time.sleep(2)
+            thumbnail = None
+    elif thumbnail is None or not isinstance(thumbnail, str):
+          thumbnail = {}
+          while not thumbnail.get("success", False):
+              thumbnail = imagine(
+                  {"model": "world", "id": world.id, "type": "thumbnail"},
+                  ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+              )
+              if thumbnail.get("success", False):
+                  time.sleep(2)
 
-            thumbnail = wait_for_image(thumbnail)
-            if thumbnail != "none":
-                world.imgs["thumbnails"] = thumbnail["imageUrls"]
-                world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
-            else:
-                world.img["thumbnail"], world.imgs["thumbnails"] = "none", []
+          thumbnail = wait_for_image(thumbnail)
+          if thumbnail != "none":
+              world.imgs["thumbnails"] = thumbnail["imageUrls"]
+              world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
+          else:
+              world.img["thumbnail"], world.imgs["thumbnails"] = "none", []
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
         base_url = thumbnail[-1:]
