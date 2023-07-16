@@ -109,7 +109,8 @@ def add_midj_images(world_id):
                     species = None
 
             response = {}
-            species_url = species.img if species else random.sample(world.species, 1)[0].img
+            species_url = species.img if species else world.species.order_by('?').first().img
+
 
             while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
@@ -127,7 +128,7 @@ def wait_for_image(msg):
         time.sleep(42)
       update = get_progress(msg["messageId"])
       while not update["progress"] == 100:
-            print("hol up, job cookin")
+            print("hol up, job cookin...")
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
