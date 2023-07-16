@@ -65,9 +65,7 @@ def add_midj_images(world):
             if thumbnail.get("success", False):
                 time.sleep(2)
                 
-        thumbnail = wait_for_image(thumbnail)
-        print(thumbnail)
-        thumbnail = thumbnail["imageUrls"][0]
+        thumbnail = wait_for_image(thumbnail)["imageUrls"][0]
         
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
@@ -75,12 +73,10 @@ def add_midj_images(world):
             if landscape.get("success", False):
                 time.sleep(2)
         
-        landscape = wait_for_image(landscape)
-        print(landscape)
-        landscape = landscape["imageUrls"][0]
+        landscape = wait_for_image(landscape)["imageUrls"][0]
 
     locations = world.locations.filter(img="none")
-
+    locations_responses = []
     for location in locations:
         response = {}
         while not response.get("success", False):
@@ -89,13 +85,15 @@ def add_midj_images(world):
                 ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
             if response.get("success", False):
                 time.sleep(2)
+        locations_responses.append(response)
     
-    for i in range(len(locations)):
-        locations[i] = wait_for_image(locations[i])
+    for i in range(len(locations_responses)):
+        locations_responses[i] = wait_for_image(locations_responses[i])
 
     print(locations)
             
     species_list = world.species.filter(img="none")
+    species_responses = []
     for speciez in species_list:
         response = {}
         while not response.get("success", False):
@@ -103,9 +101,10 @@ def add_midj_images(world):
                 thumbnail + " " + landscape + " " +
                 ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4")
             time.sleep(2)
+        species_responses.append(response)
 
-    for i in range(len(species_list)):
-        species_list[i] = wait_for_image(species_list[i])
+    for i in range(len(species_responses)):
+        species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.filter(img="none")
     for char in chars:
@@ -146,9 +145,6 @@ def add_midj_images(world):
                 ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
             time.sleep(2)
 
-    for i in range(len(species_list)):
-        species_list[i] = wait_for_image(species_list[i])
-
 
 def wait_for_image(msg):
     if "messageId" in msg:
@@ -162,7 +158,6 @@ def wait_for_image(msg):
             update = get_progress(msg["messageId"])
 
       print("ding! job finished.")
-      print(update["response"])
       return update["response"]
     
     else:
