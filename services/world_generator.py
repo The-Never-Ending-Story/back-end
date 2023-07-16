@@ -50,6 +50,59 @@ def generate_random_world():
         """
         return error
     
+def add_midj_images(world):
+        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
+        print(response)
+        wait_for_image(world, "thumbnail")
+        world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
+        world.save()
+        
+        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
+        wait_for_image(world, "landscape")
+        world.img["landscape"] = upscale_img(world.img["landscape"])
+        world.save()
+
+        for location in world.locations.all():
+            response = imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
+            print(response)
+            wait_for_image(location)
+            location.img = upscale_img(location.img)
+            location.save()
+            
+        for species in world.species.all():
+            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
+            wait_for_image(species.img)
+            species.img = upscale_img(species.img)
+            species.save()
+
+            for char in world.characters.filter(species=species):
+                imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
+                wait_for_image(char.img)
+                char.img = upscale_img(char.img)
+                char.save()
+
+        for event in world.events.all():
+            imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
+            wait_for_image(event.img)
+            event.save()
+        
+        return world
+
+def wait_for_image(instance, type=False):
+    time.sleep(30)
+    if type:
+        while not instance.img.get(type):
+            instance.refresh_from_db()
+            print(instance.img)
+            print("waiting...")
+            time.sleep(5)
+    else:
+        while (not instance.img or instance.img == "none"):
+            instance.refresh_from_db()
+            print(instance.img)
+            print("waiting...")
+            time.sleep(5)
+    
 
 def random_attributes():
     earthly = random.choices(["earthly", "otherworldly"], weights=[0.42, 0.58], k=1)[0]
@@ -114,58 +167,7 @@ def add_dalle_images(world):
         return world
 
 
-def add_midj_images(world):
-        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
-        print(response)
-        wait_for_image(world, "thumbnail")
-        world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
-        world.save()
-        
-        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
-        wait_for_image(world, "landscape")
-        world.img["landscape"] = upscale_img(world.img["landscape"])
-        world.save()
 
-        for location in world.locations.all():
-            response = imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
-            print(response)
-            wait_for_image(location)
-            location.img = upscale_img(location.img)
-            location.save()
-            
-        for species in world.species.all():
-            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
-            wait_for_image(species.img)
-            species.img = upscale_img(species.img)
-            species.save()
-
-            for char in world.characters.filter(species=species):
-                imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
-                wait_for_image(char.img)
-                char.img = upscale_img(char.img)
-                char.save()
-
-        for event in world.events.all():
-            imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
-            wait_for_image(event.img)
-            event.save()
-        
-        return world
-
-def wait_for_image(instance, type=False):
-    time.sleep(30)
-    if type:
-        while not instance.img.get(type):
-            instance.refresh_from_db()
-            print(instance.img)
-            print("waiting...")
-            time.sleep(5)
-    else:
-        while (not instance.img or not instance.img == "none"):
-            instance.refresh_from_db()
-            print(instance.img)
-            print("waiting...")
-            time.sleep(5)
 
 
 
