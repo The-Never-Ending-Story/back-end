@@ -82,7 +82,7 @@ def add_midj_images(world_id):
             locations.append(response)
         
         for location in locations:
-          wait_for_image(location)
+          location = wait_for_image(location)
                 
         species = []
         for single_species in world.species.all():
@@ -95,8 +95,8 @@ def add_midj_images(world_id):
             print(response)
             species.append(response)
 
-        for single_species in species:
-            wait_for_image(single_species)
+        for speciez in species:
+            speciez = wait_for_image(speciez)
 
         chars = []
         for char in world.characters.all():
@@ -111,7 +111,6 @@ def add_midj_images(world_id):
             response = {}
             species_url = species.img if species else world.species.order_by('?').first().img
 
-
             while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
                     random.sample(locations, 1)[0]["imageUrls"][0] + " " + species_url +
@@ -124,11 +123,11 @@ def add_midj_images(world_id):
 def wait_for_image(msg):
     if "messageId" in msg:
       if get_progress(msg["messageId"])["progress"] < 10:
-        print("job started, brb")
+        print("job started, brb...")
         time.sleep(42)
       update = get_progress(msg["messageId"])
       while not update["progress"] == 100:
-            print("hol up, job cookin...")
+            print(f'hol up, job cookin.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
