@@ -286,11 +286,13 @@ def discover_world(request):
 @require_POST
 def webhook(request):
     data = json.loads(request.body)
+    print(f"Received data: {data}")
     ref = data.get("ref")
     temp = data.get("buttonMessageId")
 
     if ref:
-      Model = apps.get_model('worlds', ref["model"])
+      print(f"Processing ref: {ref}")
+      Model = apps.get_model(ref["model"] + "s", ref["model"])
       instance = Model.objects.get(pk=ref["id"])
       if ref.get("type"):
         instance.img[ref["type"]] = temp
@@ -298,5 +300,7 @@ def webhook(request):
         instance.img = temp
 
       instance.save()
+    else: 
+      print("No ref in data")
 
     return JsonResponse({'status': 'ok'}, status=200)
