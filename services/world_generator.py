@@ -104,7 +104,6 @@ def add_midj_images(world):
         species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.filter(img="none")
-    char_species = None
     for char in chars:
         try:
             char_species = world.species.get(name=char.species)
@@ -135,12 +134,10 @@ def add_midj_images(world):
 
         response = {}
         location_url = event_location.img if event_location else world.locations.order_by('?').first().img
-        species_url = char_species.img if char_species else world.species.order_by('?').first().img
 
         while not response.get("success", False):
             response = imagine({"model": "event", "id": event.id}, 
-                location_url + " " + species_url + " " +
-                ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+                location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
             time.sleep(2)
 
 
