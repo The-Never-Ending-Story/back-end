@@ -130,16 +130,18 @@ def add_midj_images(world_id):
 
 
 def wait_for_image(msg):
-    time.sleep(42)
-    print(msg)
     if "messageId" in msg:
-        update = get_progress(msg["messageId"])
-        while not update["progress"] == 100:
+      print(msg)
+      if get_progress(msg["messageId"])["progress"] < 10:
+        time.sleep(42)
+      update = get_progress(msg["messageId"])
+      while not update["progress"] == 100:
             print("waiting for job to finish...")
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
-        return update["response"]
+      return update["response"]
+    
     else:
         return False
 
