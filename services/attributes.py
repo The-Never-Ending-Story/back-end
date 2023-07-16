@@ -1,3 +1,53 @@
+import random
+
+def random_attributes():
+    earthly = random.choices(["earthly", "otherworldly"], weights=[0.42, 0.58], k=1)[0]
+    return {
+        "earthly": earthly_bool(earthly),
+        "genres": aesthetics_sample(earthly),
+        "geoDynamics": {
+            "size": size_sample(earthly),
+            "shape": shape_sample(earthly),
+            "climate": climate_sample(earthly),
+            "landscapes": landscapes_sample(earthly)
+        },
+        "magicTechnology": {
+            "magicLvl": random.randint(0,10),
+            "techLvl": random.randint(0,10),
+        }
+    }
+
+
+def earthly_bool(earthly):
+    return True if earthly == "earthly" else False
+
+
+def aesthetics_sample(earthly):
+    return random.sample(AESTHETICS[earthly], random.randint(1,3))
+
+
+def size_sample(earthly):
+    return random.sample(GEODYNAMICS["size"][earthly], 1)[0]
+
+
+def shape_sample(earthly):
+    return random.sample(GEODYNAMICS["shape"][earthly], 1)[0]
+
+
+def climate_sample(earthly):
+    return random.sample(GEODYNAMICS["climate"][earthly], 1)[0]
+    
+
+def landscapes_sample(earthly):
+    if earthly == "earthly":
+        return random.sample(GEODYNAMICS["landscapes"]["earthly"], random.randint(2,3))
+    else:
+        landscapes = []
+        for _ in range(random.randint(2,3)):
+            landscapes.append(random.sample(GEODYNAMICS["landscapes"][earthly], 1)[0] + " " + random.sample(GEODYNAMICS["landscapes"]["earthly"], 1)[0])
+        return landscapes
+    
+    
 AESTHETICS = {
 "earthly": [
 "1950s Suburbia",

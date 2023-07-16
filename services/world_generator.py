@@ -7,7 +7,7 @@ django.setup()
 import json
 from .api_services import gpt_response, dalle_image, imagine, get_progress
 from .prompts import gpt_prompt
-from .attributes import AESTHETICS, GEODYNAMICS
+from .attributes import random_attributes
 import random
 from worlds.models import World, Event, Location, Character, Species
 import time
@@ -56,6 +56,7 @@ def add_midj_images(world):
     if world.img.get("landscape"):
         thumbnail, landscape = world.img["thumbnail"], world.img["landscape"]
     else:
+        print(f'working on landscapes for world {world.id}...')
         while not thumbnail.get("success", False):
             thumbnail = imagine(
                 {"model": "world", "id": world.id, "type": "thumbnail"},
@@ -63,8 +64,11 @@ def add_midj_images(world):
             )
             if thumbnail.get("success", False):
                 time.sleep(2)
-                
-        thumbnail = wait_for_image(thumbnail)["imageUrls"][0]
+
+        thumbnail = wait_for_image(thumbnail)      
+        while wait_for_image(thumbnail) == False:
+            thumbnail = wait_for_image(thumbnail)
+        thumbnail = thumbnail["imageUrls"][0]
         
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
@@ -72,11 +76,15 @@ def add_midj_images(world):
             if landscape.get("success", False):
                 time.sleep(2)
         
-        landscape = wait_for_image(landscape)["imageUrls"][0]
+        landscape = wait_for_image(landscape)
+        while landscape == False:
+            landscape = wait_for_image(landscape)
+        landscape = landscape["imageUrls"][0]
 
     locations = world.locations.filter(img="none")
     locations_responses = []
-    for location in locations:
+    for i, location in enumerate(locations):
+        print(f'working on locations for {world.name}, world {world.id}, #{i}/{locations.length} incomplete locations')
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "location", "id": location.id}, 
@@ -88,10 +96,13 @@ def add_midj_images(world):
     
     for i in range(len(locations_responses)):
         locations_responses[i] = wait_for_image(locations_responses[i])
+        while locations_responses[i] == False:
+            locations_responses[i] = wait_for_image(locations_responses[i])
             
     species_list = world.species.filter(img="none")
     species_responses = []
-    for speciez in species_list:
+    for i, speciez in enumerate(species_list):
+        print(f'working on species for {world.name}, world {world.id}, #{i}/{species_list.length} incomplete species')
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "species", "id": speciez.id}, 
@@ -102,9 +113,12 @@ def add_midj_images(world):
 
     for i in range(len(species_responses)):
         species_responses[i] = wait_for_image(species_responses[i])
+        while species_responses[i] == False:
+            species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.filter(img="none")
-    for char in chars:
+    for i, char in enumerate(chars):
+        print(f'working on #{i}/{chars.length} incomplete characters for {world.name}, world {world.id}')
         try:
             char_species = world.species.get(name=char.species)
         except Species.DoesNotExist:
@@ -125,7 +139,8 @@ def add_midj_images(world):
               time.sleep(2) 
 
     events = world.events.filter(img='')
-    for event in events:
+    for i, event in enumerate(events):
+        print(f'working on #{i}/{events.length} incomplete events for {world.name}, world {world.id}')
         event_location = None
         try:
             event_location = world.locations.get(name=event.location)
@@ -140,73 +155,30 @@ def add_midj_images(world):
                 location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
             time.sleep(2)
 
+    print('ding! world finished. wow!')
+
 
 def wait_for_image(msg):
-    if "messageId" in msg:
-      if get_progress(msg["messageId"])["progress"] < 10:
-        print("job started, brb...")
-        time.sleep(42)
-      update = get_progress(msg["messageId"])
-      while not update["progress"] == 100:
+    try:
+        update = get_progress(msg["messageId"])
+
+        if update["progress"] < 10:
+            print("job started, brb...")
+            time.sleep(42)
+
+        while not update["progress"] == 100:
             print(f'hol up, job cookin.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
             if update["progress"] == "incomplete":
                 return ("woops! job hanging, moving on.")
 
-      print("ding! job finished.")
-      return update["response"]
+        print("ding! job finished.")
+        return update["response"]
     
-    else:
+    except:
+        print(f'woops, looks like {msg} is an invalid msg')
         return False
-
-    
-def random_attributes():
-    earthly = random.choices(["earthly", "otherworldly"], weights=[0.42, 0.58], k=1)[0]
-    return {
-        "earthly": earthly_bool(earthly),
-        "genres": aesthetics_sample(earthly),
-        "geoDynamics": {
-            "size": size_sample(earthly),
-            "shape": shape_sample(earthly),
-            "climate": climate_sample(earthly),
-            "landscapes": landscapes_sample(earthly)
-        },
-        "magicTechnology": {
-            "magicLvl": random.randint(0,10),
-            "techLvl": random.randint(0,10),
-        }
-    }
-
-
-def earthly_bool(earthly):
-    return True if earthly == "earthly" else False
-
-
-def aesthetics_sample(earthly):
-    return random.sample(AESTHETICS[earthly], random.randint(1,3))
-
-
-def size_sample(earthly):
-    return random.sample(GEODYNAMICS["size"][earthly], 1)[0]
-
-
-def shape_sample(earthly):
-    return random.sample(GEODYNAMICS["shape"][earthly], 1)[0]
-
-
-def climate_sample(earthly):
-    return random.sample(GEODYNAMICS["climate"][earthly], 1)[0]
-    
-
-def landscapes_sample(earthly):
-    if earthly == "earthly":
-        return random.sample(GEODYNAMICS["landscapes"]["earthly"], random.randint(2,3))
-    else:
-        landscapes = []
-        for _ in range(random.randint(2,3)):
-            landscapes.append(random.sample(GEODYNAMICS["landscapes"][earthly], 1)[0] + " " + random.sample(GEODYNAMICS["landscapes"]["earthly"], 1)[0])
-        return landscapes
     
 
 def add_dalle_images(world):
@@ -227,7 +199,8 @@ def add_dalle_images(world):
 # print(world)
 
 worlds = World.objects.all()
-for world in worlds:
+for i, world in enumerate(worlds):
+    print(f'Working on world {world.id}, #{i} / {worlds.length} incomplete worlds')
     add_midj_images(world)
 while True:
     try:
