@@ -70,3 +70,23 @@ def get_progress(msgid):
     except json.JSONDecodeError:
         print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
         return None
+    
+def upscale_img(id, attempt=1, max_attempts=4):
+    url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
+
+    headers = {
+        'Authorization': f'Bearer {MIDJ_API_KEY}',
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    if response.status_code == 400:
+        print(f"Error: {response.status_code}. Response: {response.text}")
+        if attempt < max_attempts:
+            print(f"Retrying in {attempt * 2} seconds...")
+            time.sleep(2 ** attempt)
+            return upscale_img(id, attempt + 1, max_attempts)
+        else:
+            raise Exception(f'Failed to upscale image after {max_attempts} attempts.')
+
+    return response.json()["url"]
