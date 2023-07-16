@@ -292,7 +292,10 @@ def webhook(request):
 
     if ref:
       print(f"Processing ref: {ref}")
-      Model = apps.get_model(ref["model"] + "s", ref["model"])
+      if ref["model"] == "species":
+        Model = apps.get_model("species", "species")
+      else:
+        Model = apps.get_model(ref["model"] + "s", ref["model"])
       instance = Model.objects.get(pk=ref["id"])
       if ref.get("type"):
         instance.img[ref["type"]] = temp
