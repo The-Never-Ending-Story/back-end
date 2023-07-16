@@ -58,6 +58,8 @@ def add_midj_images(world_id):
         while not thumbnail.get("success", False):
             thumbnail = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, 
                 ' '.join(world.genres) + " landscape view of this world: " + world.imagine)
+            if thumbnail.get("success", False):
+                time.sleep(2)
         print(thumbnail)
         thumbnail = wait_for_image(thumbnail)
         
@@ -66,7 +68,9 @@ def add_midj_images(world_id):
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
                 thumbnail["imageUrls"][0] + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
-            
+            if landscape.get("success", False):
+                time.sleep(2)
+        print(landscape)
         landscape = wait_for_image(landscape)
 
         locations = []
@@ -77,45 +81,55 @@ def add_midj_images(world_id):
                 response = imagine({"model": "location", "id": location.id}, 
                     thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " + 
                     ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
-                time.sleep(2)
+                if response.get("success", False):
+                    time.sleep(2)
                 
             locations.append(response)
         
-        for location in locations:
-          location = wait_for_image(location)
-                
-        species = []
-        for single_species in world.species.all():
-            response = {}
-            while not response.get("success", False):
-                response = imagine({"model": "species", "id": single_species.id}, 
-                    thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " +
-                    ' '.join(world.genres) + " " + single_species.imagine + " --iw .55 --ar 3:4")
-                time.sleep(2)
-            print(response)
-            species.append(response)
+        for i in range(len(locations)):
+            locations[i] = wait_for_image(locations[i])
+            print(locations[i])
 
-        for speciez in species:
-            speciez = wait_for_image(speciez)
+        print(locations)
+                
+        species_list = []
+        for speciez in world.species.all():
+            response = {}
+            while response.get("success", False):
+                response = imagine({"model": "species", "id": speciez.id}, 
+                    thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " +
+                    ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4")
+                time.sleep(2)
+
+            species_list.append(response)
+
+        for i in range(len(species_list)):
+            species_list[i] = wait_for_image(species_list[i])
+            print(species_list[i])
+
+        print(species_list)
 
         chars = []
         for char in world.characters.all():
+            char_species = None
             try:
-                species = world.species.get(name=char.species)
+                char_species = world.species.get(name=char.species)
             except Species.DoesNotExist:
                 try:
-                    species = world.species.get(name=char.species[:-1])
+                    char_species = world.species.get(name=char.species[:-1])
                 except Species.DoesNotExist:
-                    species = None
+                    char_species = None
 
             response = {}
-            species_url = species.img if species else world.species.order_by('?').first().img
+            species_url = char_species.img if char_species else world.species.order_by('?').first().img
+            locations_url = world.locations.order_by('?').first().img
 
-            while not response.get("success", False):
+            while response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
-                    random.sample(locations, 1)[0]["imageUrls"][0] + " " + species_url +
+                    locations_url + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
-                time.sleep(2)
+                if response.get("success", False):
+                  time.sleep(2) 
                 
             chars.append(response)
 
@@ -131,6 +145,7 @@ def wait_for_image(msg):
             time.sleep(4)
             update = get_progress(msg["messageId"])
 
+      print("ding! job finished." + update["response"])
       return update["response"]
     
     else:
