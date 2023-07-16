@@ -86,12 +86,8 @@ def get_progress(msgid):
     response = requests.request("GET", url, headers=headers)
     print(response.text)
     try:
-        result = json.loads(response.text)
-        if "messageId" in result:
-            return result
-        else:
-            print("Error: Response does not contain a messageId. Response: ", result)
-            return None
+        return json.loads(response.text)
+    
     except json.JSONDecodeError:
         print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
         return None
