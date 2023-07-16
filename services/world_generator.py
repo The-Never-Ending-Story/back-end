@@ -63,7 +63,8 @@ def add_midj_images(world):
                 time.sleep(2)
 
         thumbnail = wait_for_image(thumbnail)
-        if thumbnail != "none":      
+        if thumbnail != "none":
+            world.imgs["thumbnails"] = thumbnail["imageUrls"]      
             thumbnail = thumbnail["imageUrls"][0]
     
     if not world.img.get("landscape", "").startswith("https"):
@@ -75,6 +76,7 @@ def add_midj_images(world):
         
         landscape = wait_for_image(landscape)
         if landscape != "none":
+            world.imgs["landscapes"] = landscape["imageUrls"]
             landscape = landscape["imageUrls"][0]
 
     locations = world.locations.filter(img="none")
