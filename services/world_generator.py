@@ -54,15 +54,16 @@ def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
     world_img = {"thumbnail": world.img.get("thumbnail"), "landscape": world.img.get("landscape")}
-    world_imgs = {}
+    world.imgs = {}
 
-    if isinstance(world.imgs, dict):
-        world_imgs = {"thumbnails": world.imgs.get("thumbnails"), "landscapes": world.imgs.get("landscapes")}
-    
     thumbnail = world_img["thumbnail"]
     landscape = world_img["landscape"]
 
-    if thumbnail is not None and not thumbnail.startswith("https"):
+    if thumbnail.startswith("https"):
+        base_url = thumbnail[-1:]
+        world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+    
+    elif thumbnail is not None and not thumbnail.startswith("https"):
         thumbnail = {}
         while not thumbnail.get("success", False):
             thumbnail = imagine(
@@ -72,22 +73,12 @@ def add_midj_images(world):
             if thumbnail.get("success", False):
                 time.sleep(2)
 
-        print(thumbnail)
         thumbnail = wait_for_image(thumbnail)
         print(thumbnail)
         if thumbnail != "none":
-            world_imgs["thumbnails"] = thumbnail["imageUrls"]
-            print(world.imgs)
-            if isinstance(world.imgs, dict):
-                world.imgs["thumbnails"] = world_imgs
-            else:
-                world.imgs = {"thumbnails": world_imgs}
-            thumbnail = thumbnail["imageUrls"][0]
+            world.imgs["thumbnails"] = thumbnail["imageUrls"] if isinstance(world.imgs, dict)
+            world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
 
-    else:
-        base_url = thumbnail[:-1]
-        world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
-    
     if landscape is not None and not landscape.startswith("https"):
         landscape = {}
         while not landscape.get("success", False):
@@ -99,12 +90,11 @@ def add_midj_images(world):
         landscape = wait_for_image(landscape)
         if landscape != "none":
             world.imgs["landscapes"] = landscape["imageUrls"]
-            landscape = landscape["imageUrls"][0]
-
-    else:
-        base_url = landscape[:-1]
-        world_imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
-    
+            if landscape["imageUrls"]:
+                landscape = landscape["imageUrls"][0]
+            else:
+                landscape = None
+      
     locations = world.locations.filter(img="none")
     locations_responses = []
     for i, location in enumerate(locations):
