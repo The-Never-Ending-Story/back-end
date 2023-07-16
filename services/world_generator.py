@@ -139,7 +139,6 @@ def add_midj_images(world):
 
         response = {}
         location_url = event_location.img if event_location else world.locations.order_by('?').first().img
-        species_url = char_species.img if char_species else world.species.order_by('?').first().img
 
         while not response.get("success", False):
             response = imagine({"model": "event", "id": event.id}, 
