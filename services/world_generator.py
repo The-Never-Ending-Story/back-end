@@ -53,14 +53,14 @@ def generate_random_world():
 def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
-    world_img = {"thumbnail": world.img.get("thumbnail"), "landscape": world.img.get("landscape")}
-    world.imgs = {}
+    world_img = world.img
+    world_imgs = world.imgs if not world.imgs == [] else {}
 
-    thumbnail = world_img["thumbnail"]
-    landscape = world_img["landscape"]
+    thumbnail = world_img.get("thumbnail")
+    landscape = world_img.get("landscape")
 
     if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
-        if "thumbnails" not in world.imgs or not len(world.imgs["thumbnails"]) == 4:
+        if "thumbnails" not in world_imgs or not len(world.imgs["thumbnails"]) == 4:
             base_url = thumbnail[-1:]
             world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
@@ -129,88 +129,137 @@ def add_midj_images(world):
     else:
         landscape = world.img["landscape"] = "none"
       
-    locations = world.locations.filter(img="none")
+    locations = world.locations.filter(~Q(img__startswith="https"))
     locations_responses = []
     for i, location in enumerate(locations):
         print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
-        response = {}
-        while not response.get("success", False):
+
+        if isinstance(location.img, str) and not location.img == "none":
+            try:
+                img = location.img = upscale_img(location.img)
+                base_url = img[-1:]
+                location.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+            except:
+                location.img = "none"
+
+        else:
             thumbnail = "none" if thumbnail is None else thumbnail
             landscape = "none" if landscape is None else landscape
-            response = imagine(
-                {"model": "location", "id": location.id},
-                thumbnail + " " + landscape + " " +
-                ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
-            )
-            if response.get("success", False):
-                time.sleep(2)
-        locations_responses.append(response)
+            print (thumbnail + landscape)
+            
+            response = {}
+            while not response.get("success", False):
+                response = imagine(
+                    {"model": "location", "id": location.id},
+                    thumbnail + " " + landscape + " " +
+                    ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
+                )
+                if response.get("success", False):
+                    time.sleep(2)
+            locations_responses.append(response)
     
     for i in range(len(locations_responses)):
         locations_responses[i] = wait_for_image(locations_responses[i])
             
-    species_list = world.species.filter(img="none")
+    species_list = world.species.filter(~Q(img__startswith="https"))
     species_responses = []
     for i, speciez in enumerate(species_list):
         print(f'working on {i + 1}/{len(species_list)} incomplete species for {world.name}, world {world.id}')
-        response = {}
-        while not response.get("success", False):
+        if isinstance(speciez.img, str) and not speciez.img == "none":
+          try:
+              img = speciez.img = upscale_img(speciez.img)
+              base_url = img[-1:]
+              speciez.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+          except:
+              speciez.img = "none"
+      
+        else:
             thumbnail = "none" if thumbnail is None else thumbnail
             landscape = "none" if landscape is None else landscape
-            response = imagine(
-                {"model": "species", "id": speciez.id},
-                thumbnail + " " + landscape + " " +
-                ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
-            )
-            time.sleep(2)
-        species_responses.append(response)
+            print (thumbnail + landscape)
+        
+            response = {}
+            while not response.get("success", False):
+                thumbnail = "none" if thumbnail is None else thumbnail
+                landscape = "none" if landscape is None else landscape
+                response = imagine(
+                      {"model": "species", "id": speciez.id},
+                      thumbnail + " " + landscape + " " +
+                      ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
+                  )
+                if response.get("success", False):
+                    time.sleep(2)
+            
+            species_responses.append(response)
 
     for i in range(len(species_responses)):
         species_responses[i] = wait_for_image(species_responses[i])
 
-    chars = world.characters.filter(img="none")
+    chars = world.characters.filter(~Q(img__startswith="https"))
+
     for i, char in enumerate(chars):
         print(f'working on {i + 1}/{len(chars)} incomplete characters for {world.name}, world {world.id}')
-        try:
-            char_species = world.species.get(name=char.species)
-        except Species.DoesNotExist:
+        if isinstance(char.img, str) and not char.img == "none":
+          try:
+              img = char.img = upscale_img(char.img)
+              base_url = img[-1:]
+              char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+          except:
+              char.img = "none"
+        
+        else:
             try:
-                char_species = world.species.get(name=char.species[:-1])
+                char_species = world.species.get(name=char.species)
             except Species.DoesNotExist:
-                char_species = None
+                  try:
+                      char_species = world.species.get(name=char.species[:-1])
+                  except Species.DoesNotExist:
+                      char_species = None
 
-        species_url = char_species.img if char_species else world.species.order_by('?').first().img
-        location_url = world.locations.order_by('?').first().img
 
-        response = {}
-        while not response.get("success", False):
-            response = imagine({"model": "character", "id": char.id}, 
-                location_url + " " + species_url + " " +
-                ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
-            if response.get("success", False):
-              time.sleep(2) 
+            species_url = char_species.img if char_species else world.species.order_by('?').first().img
+            location_url = world.locations.order_by('?').first().img
+
+            response = {}
+            while not response.get("success", False):
+                response = imagine({"model": "character", "id": char.id}, 
+                    location_url + " " + species_url + " " +
+                    ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
+                if response.get("success", False):
+                  time.sleep(2) 
 
         if i == len(chars) - 1:
             wait_for_image(response)
 
-    events = world.events.filter(img='')
+    events = world.events.filter(~Q(img__startswith='https'))
+
     for i, event in enumerate(events):
         print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
-        event_location = None
-        try:
-            event_location = world.locations.get(name=event.location)
-        except Location.DoesNotExist:
+        if isinstance(char.img, str) and not char.img == "none":
+          try:
+              img = char.img = upscale_img(char.img)
+              base_url = img[-1:]
+              char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+          except:
+              char.img = "none"
+
+        else:
             event_location = None
 
-        response = {}
-        location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+            try:
+                event_location = world.locations.get(name=event.location)
+            except Location.DoesNotExist:
+                event_location = None
 
-        while not response.get("success", False):
-            response = imagine({"model": "event", "id": event.id}, 
-                location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
-            time.sleep(2)
-        if i == len(events) - 1:
-            wait_for_image(response)
+            response = {}
+            location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+
+            while not response.get("success", False):
+                response = imagine({"model": "event", "id": event.id}, 
+                    location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+                time.sleep(2)
+            if i == len(events) - 1:
+                wait_for_image(response)
 
     print('ding! world finished. wow!')
 
