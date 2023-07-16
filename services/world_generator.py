@@ -135,6 +135,8 @@ def add_midj_images(world):
         print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
+            thumbnail = "none" if thumbnail is None else thumbnail
+            landscape = "none" if landscape is None else landscape
             response = imagine(
                 {"model": "location", "id": location.id},
                 thumbnail + " " + landscape + " " +
@@ -153,6 +155,8 @@ def add_midj_images(world):
         print(f'working on {i + 1}/{len(species_list)} incomplete species for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
+            thumbnail = "none" if thumbnail is None else thumbnail
+            landscape = "none" if landscape is None else landscape
             response = imagine(
                 {"model": "species", "id": speciez.id},
                 thumbnail + " " + landscape + " " +
