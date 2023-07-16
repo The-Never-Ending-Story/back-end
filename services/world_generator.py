@@ -54,7 +54,7 @@ def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
     world_img = {"thumbnail": world.img.get("thumbnail"), "landscape": world.img.get("landscape")}
-    world.imgs = {}
+    world.imgs = {"thumbnails"}
 
     thumbnail = world_img["thumbnail"]
     landscape = world_img["landscape"]
@@ -64,11 +64,13 @@ def add_midj_images(world):
         world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif thumbnail is not None and isinstance(thumbnail, str):
-        thumbnail = upscale_img(thumbnail)
-        if isinstance(thumbnail, str) and thumbnail.startswith('https'):
-            world.img["thumbnail"] = thumbnail
-        else:
+        try: 
+            thumbnail = upscale_img(thumbnail)
+            if isinstance(thumbnail, str) and thumbnail.startswith('https'):
+                world.img["thumbnail"] = thumbnail
+        except: 
             thumbnail = None
+
     elif thumbnail is None or not isinstance(thumbnail, str):
         thumbnail = {}
         while not thumbnail.get("success", False):
@@ -213,7 +215,7 @@ def wait_for_image(msg):
             update = get_progress(msg["messageId"])
 
         while not update["progress"] == 100:
-            print(f'hol up, job cookin.. {update["progress"]}%')
+            print(f'hol\' up, job cookin\'.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
             if update["progress"] == "incomplete":
