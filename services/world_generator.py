@@ -70,44 +70,48 @@ def add_midj_images(world):
         else:
             thumbnail = None
     elif thumbnail is None or not isinstance(thumbnail, str):
-          thumbnail = {}
-          while not thumbnail.get("success", False):
-              thumbnail = imagine(
-                  {"model": "world", "id": world.id, "type": "thumbnail"},
-                  ' '.join(world.genres) + " landscape view of this world: " + world.imagine
-              )
-              if thumbnail.get("success", False):
-                  time.sleep(2)
+        thumbnail = {}
+        while not thumbnail.get("success", False):
+            thumbnail = imagine(
+                {"model": "world", "id": world.id, "type": "thumbnail"},
+                ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+            )
+            if thumbnail.get("success", False):
+                time.sleep(2)
 
-          thumbnail = wait_for_image(thumbnail)
-          if thumbnail != "none":
-              world.imgs["thumbnails"] = thumbnail["imageUrls"]
-              world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
-          else:
-              world.img["thumbnail"], world.imgs["thumbnails"] = "none", []
+        thumbnail = wait_for_image(thumbnail)
+        if thumbnail != "none":
+            world.imgs["thumbnails"] = thumbnail["imageUrls"]
+            world.img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
+        else:
+            world.img["thumbnail"], world.imgs["thumbnails"] = "none", []
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
-        base_url = thumbnail[-1:]
-        world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+        base_url = landscape[-1:]
+        world.imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif landscape is not None and isinstance(landscape, str):
         landscape = upscale_img(landscape)
         if isinstance(landscape, str) and landscape.startswith('https'):
             world.img["landscape"] = landscape
         else:
-            landscape = {}
-            while not landscape.get("success", False):
-                landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
-                    thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
-                if landscape.get("success", False):
-                    time.sleep(2)
-        
-            landscape = wait_for_image(landscape)
-            if landscape != "none":
-                world.imgs["landscapes"] = landscape["imageUrls"]
-                world.img["landscape"] = landscape = landscape["imageUrls"][0]
-            else:
-                world.img["landscape"], world.imgs["landscapes"] = "none", []
+            landscape = None
+    elif landscape is None or not isinstance(landscape, str):
+        landscape = {}
+        while not landscape.get("success", False):
+            landscape = imagine(
+                {"model": "world", "id": world.id, "type": "landscape"},
+                thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3"
+            )
+            if landscape.get("success", False):
+                time.sleep(2)
+
+        landscape = wait_for_image(landscape)
+        if landscape != "none":
+            world.imgs["landscapes"] = landscape["imageUrls"]
+            world.img["landscape"] = landscape = landscape["imageUrls"][0]
+        else:
+            world.img["landscape"], world.imgs["landscapes"] = "none", []
       
     locations = world.locations.filter(img="none")
     locations_responses = []
@@ -115,9 +119,11 @@ def add_midj_images(world):
         print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
-            response = imagine({"model": "location", "id": location.id}, 
-                thumbnail + " " + landscape + " " + 
-                ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
+            response = imagine(
+                {"model": "location", "id": location.id},
+                thumbnail + " " + landscape + " " +
+                ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
+            )
             if response.get("success", False):
                 time.sleep(2)
         locations_responses.append(response)
@@ -131,9 +137,11 @@ def add_midj_images(world):
         print(f'working on {i + 1}/{len(species_list)} incomplete species for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
-            response = imagine({"model": "species", "id": speciez.id}, 
+            response = imagine(
+                {"model": "species", "id": speciez.id},
                 thumbnail + " " + landscape + " " +
-                ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4")
+                ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
+            )
             time.sleep(2)
         species_responses.append(response)
 
