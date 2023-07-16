@@ -151,6 +151,8 @@ def wait_for_image(msg):
             print(f'hol up, job cookin.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
+            if update["progress"] == "incomplete":
+                return ("woops! job hanging, moving on.")
 
       print("ding! job finished.")
       return update["response"]
