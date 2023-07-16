@@ -74,3 +74,15 @@ def upscale_img(id, attempt=1, max_attempts=4):
             raise Exception(f'Failed to upscale image after {max_attempts} attempts.')
         
     return response.json()["url"]
+
+
+def get_progress(msgid):
+    url = f'https://api.thenextleg.io/v2/message/{msgid}?expireMins=2'
+
+    headers = {
+    'Authorization': f'Bearer {MIDJ_API_KEY}',
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    return(response.text)

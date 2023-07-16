@@ -288,7 +288,6 @@ def webhook(request):
     data = json.loads(request.body)
     print(f"Received data: {data}")
     ref = data.get("ref")
-    temp = data.get("buttonMessageId")
 
     if ref:
       print(f"Processing ref: {ref}")
@@ -296,11 +295,14 @@ def webhook(request):
         Model = apps.get_model("species", "species")
       else:
         Model = apps.get_model(ref["model"] + "s", ref["model"])
+
       instance = Model.objects.get(pk=ref["id"])
+      image_urls = data.get("imageUrls")
+      
       if ref.get("type"):
-        instance.img[ref["type"]] = temp
+        instance.img[ref["type"]] = image_urls[0]
       else:
-        instance.img = temp
+        instance.img = image_urls[0]
 
       instance.save()
     else: 
