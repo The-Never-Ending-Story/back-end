@@ -60,7 +60,7 @@ def add_midj_images(world):
     landscape = world_img["landscape"]
 
     if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
-        if not len(world.imgs["thumbnails"]) == 4:
+        if "thumbnails" not in world.imgs or not len(world.imgs["thumbnails"]) == 4:
             base_url = thumbnail[-1:]
             world.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
@@ -95,7 +95,7 @@ def add_midj_images(world):
         thumbnail = world.img["thumbnail"] = "none"
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
-        if not len(world.imgs["landscapes"]) == 4:
+        if "landscapes" not in world.imgs or not len(world.imgs["landscapes"]) == 4:
             base_url = landscape[-1:]
             world.imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
