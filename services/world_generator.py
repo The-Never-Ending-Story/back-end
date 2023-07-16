@@ -80,13 +80,27 @@ def add_midj_images(world):
             species.img = upscale_img(species.img)
             species.save()
 
-            for char in world.characters.filter(species=species):
+        for char in world.characters.all():
+            try:
+                species = world.species.get(name=char.species)
+            except Species.DoesNotExist:
+                try:
+                    species = world.species.get(name=char.species[:-1])
+                except Species.DoesNotExist:
+                    species = None
+
+            if species:
                 response = imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + ' '.join(world.genres) + " " + char.imagine + " --ar 3:4")
                 print(response)
-                wait_for_image(char)
-                char.refresh_from_db()
-                char.img = upscale_img(char.img)
-                char.save()
+            else:
+                response = imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + char.imagine + " --ar 3:4")
+                print(response)
+                
+            wait_for_image(char)
+            char.refresh_from_db()
+            char.img = upscale_img(char.img)
+            char.save()
+
 
         for event in world.events.all():
             imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + event.imagine + " --ar 3:4")
@@ -102,16 +116,15 @@ def wait_for_image(instance, type=False):
     instance.refresh_from_db()
     if type:
         while not instance.img.get(type):
-            print(instance.img)
-            print("waiting...")
+            print(instance.img + "--waiting...")
             time.sleep(5)
             instance.refresh_from_db()
     else:
         while (not instance.img or instance.img == "none"):
-            print(instance.img)
-            print("waiting...")
+            print(instance.img + "--waiting...")
             time.sleep(5)
             instance.refresh_from_db()
+    instance.refresh_from_db()
     
 
 def random_attributes():
