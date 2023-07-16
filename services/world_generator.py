@@ -55,30 +55,61 @@ def add_midj_images(world):
         print(response)
         wait_for_image(world, "thumbnail")
         world.refresh_from_db()
-        world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
-        world.save()
+        for _ in range(5):
+            try:
+                world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
+                world.save()
+                break
+            except Exception as e:
+                print(e)
+                time.sleep(5)
+                world.refresh_from_db()
+
         
         imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
         wait_for_image(world, "landscape")
         world.refresh_from_db()
-        world.img["landscape"] = upscale_img(world.img["landscape"])
-        world.save()
+        for _ in range(5):
+            try:
+                world.img["landscape"] = upscale_img(world.img["landscape"])
+                world.save()
+                break
+            except Exception as e:
+                print(e)
+                time.sleep(5)
+                world.refresh_from_db()
 
         for location in world.locations.all():
             response = imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
             print(response)
             wait_for_image(location)
             location.refresh_from_db()
-            location.img = upscale_img(location.img)
-            location.save()
+            for _ in range(5):
+                try:
+                    location.img = upscale_img(location.img)
+                    location.save()
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(5)
+                    location.refresh_from_db()
+            
             
         for species in world.species.all():
             response = imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
             print(response)
             wait_for_image(species)
             species.refresh_from_db()
-            species.img = upscale_img(species.img)
-            species.save()
+            for _ in range(5):
+                try:
+                    species.img = upscale_img(species.img)
+                    species.save()
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(5)
+                    species.refresh_from_db()
+
 
         for char in world.characters.all():
             try:
@@ -98,21 +129,38 @@ def add_midj_images(world):
                 
             wait_for_image(char)
             char.refresh_from_db()
-            char.img = upscale_img(char.img)
-            char.save()
+
+            for _ in range(5):
+                try:
+                    char.img = upscale_img(char.img)
+                    char.save()
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(5)
+                    char.refresh_from_db()
 
 
         for event in world.events.all():
             imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + event.imagine + " --ar 3:4")
             wait_for_image(event)
             event.refresh_from_db()
+            for _ in range(5):
+                try:
+                    event.img = upscale_img(event.img)
+                    event.save()
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(5)
+                    event.refresh_from_db()
             event.img = upscale_img(event.img)
             event.save()
         
         return world
 
 def wait_for_image(instance, type=False):
-    time.sleep(30)
+    time.sleep(45)
     instance.refresh_from_db()
     if type:
         while not instance.img.get(type):
