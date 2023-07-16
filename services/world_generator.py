@@ -21,7 +21,6 @@ def generate_random_world():
 
     try:
         world_json = json.loads(world_response)
-        print(world_json)
 
         related_fields = ['species', 'characters', 'events', 'locations']
         world_info = {k: v for k, v in world_json.items() if k not in related_fields}
@@ -107,8 +106,8 @@ def add_midj_images(world):
         species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.filter(img="none")
+    char_species = None
     for char in chars:
-        char_species = None
         try:
             char_species = world.species.get(name=char.species)
         except Species.DoesNotExist:
@@ -227,8 +226,8 @@ def add_dalle_images(world):
         return world
 
     
-world = generate_random_world()
-print(world)
+# world = generate_random_world()
+# print(world)
 
-# img = midjourney_image("a wormhole to another dimension")
-# print(img)
+world = World.objects.get(id=84)
+add_midj_images(world)
