@@ -8,7 +8,7 @@ import json
 from .api_services import gpt_response, dalle_image, imagine, get_progress
 from .prompts import gpt_prompt
 from .attributes import random_attributes
-import random
+from django.db.models import Q
 from worlds.models import World, Event, Location, Character, Species
 import time
 
@@ -98,7 +98,7 @@ def add_midj_images(world):
     species_list = world.species.filter(img="none")
     species_responses = []
     for i, speciez in enumerate(species_list):
-        print(f'working on {i + 1}/{len(species_list)} incomplete species species for {world.name}, world {world.id}')
+        print(f'working on {i + 1}/{len(species_list)} incomplete species for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "species", "id": speciez.id}, 
@@ -202,7 +202,8 @@ def add_dalle_images(world):
 # world = generate_random_world()
 # print(world)
 
-worlds = World.objects.filter(img={})
+# worlds = Event.objects.filter(img='').values_list('world__id', flat=True).distinct()
+worlds = World.objects.filter(~Q(img__thumbnail__startswith="https"))
 for i, world in enumerate(worlds):
     print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} incomplete worlds')
     add_midj_images(world)
