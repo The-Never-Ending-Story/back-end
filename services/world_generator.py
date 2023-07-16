@@ -53,7 +53,7 @@ def generate_random_world():
 def add_midj_images(world):
         thumbnail = {}
 
-        while not thumbnail["success"] == True:
+        while not thumbnail.get("success", False):
             thumbnail = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, 
                 ' '.join(world.genres) + " landscape view of this world: " + world.imagine)
         print(thumbnail)
@@ -61,7 +61,7 @@ def add_midj_images(world):
         
         landscape = {}
 
-        while not landscape["success"] == True:
+        while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
                 thumbnail["imageUrl"] + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
             
@@ -71,7 +71,7 @@ def add_midj_images(world):
 
         for location in world.locations.all():
             response = {}
-            while not response["success"] == True:
+            while not response.get("success", False):
                 response = imagine({"model": "location", "id": location.id}, 
                     thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " + 
                     ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4")
@@ -80,10 +80,10 @@ def add_midj_images(world):
         
         wait_for_image(locations.last)
 
-        species = {} 
+        species = []
         for species in world.species.all():
             response = {}
-            while not response["success"] == True:
+            while not response.get("success", False):
                 response = imagine({"model": "species", "id": species.id}, 
                     thumbnail["imageUrl"] + " " + landscape["imageUrl"] + " " +
                     ' '.join(world.genres) + " " + species.imagine + " --iw .55 --ar 3:4")
@@ -92,7 +92,7 @@ def add_midj_images(world):
 
         wait_for_image(species.last)
 
-        chars = {}
+        chars = []
         for char in world.characters.all():
             try:
                 species = world.species.get(name=char.species)
@@ -105,7 +105,7 @@ def add_midj_images(world):
             response = {}
             species_url = species.img if species else random.sample(world.species, 1)[0].img
 
-            while not response["success"] == True:
+            while not response.get("success", False):
                 response = imagine({"model": "character", "id": char.id}, 
                     random.sample(locations, 1)[0]["imageUrl"] + " " + species_url +
                     ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
