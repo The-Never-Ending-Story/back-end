@@ -3,6 +3,7 @@ import json
 import openai
 from .settings import OPENAI_API_KEY
 from .settings import MIDJ_API_KEY
+import time
 
 
 def gpt_response(prompt):
@@ -54,7 +55,7 @@ def imagine(ref, prompt):
         return None
 
 
-def upscale_img(id):
+def upscale_img(id, attempt=1, max_attempts=5):
     url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
 
     headers = {
@@ -63,5 +64,13 @@ def upscale_img(id):
     }
 
     response = requests.request("GET", url, headers=headers)
-    print(response)
-    return response.json()["url"]
+
+    if response.status_code == 400:
+        if attempt < max_attempts:
+            print(f"Error: {response.status_code}. Retrying in {attempt * 2} seconds...")
+            time.sleep(attempt * 2)
+            return upscale_img(id, attempt + 1, max_attempts)
+        else:
+            raise Exception(f"Failed to upscale image after {max_attempts} attempts.")
+        
+    return response.url
