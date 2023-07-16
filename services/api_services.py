@@ -55,7 +55,7 @@ def imagine(ref, prompt):
         return None
 
 
-def upscale_img(id, attempt=1, max_attempts=10):
+def upscale_img(id, attempt=1, max_attempts=4):
     url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
 
     headers = {
@@ -68,9 +68,9 @@ def upscale_img(id, attempt=1, max_attempts=10):
         print(f"Error: {response.status_code}. Response: {response.text}")
         if attempt < max_attempts:
             print(f"Retrying in {attempt * 2} seconds...")
-            time.sleep(attempt * 2)
+            time.sleep(2 ** attempt)
             return upscale_img(id, attempt + 1, max_attempts)
         else:
-            raise Exception(f"Failed to upscale image after {max_attempts} attempts.")
+            raise Exception(f'Failed to upscale image after {max_attempts} attempts.')
         
     return response.json()["url"]
