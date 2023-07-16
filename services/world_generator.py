@@ -52,8 +52,9 @@ def generate_random_world():
 
 def add_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
-    thumbnail = landscape = {}
-    if not world.img.get("thumbnail", "").startswith("https"):
+
+    thumbnail, landscape = world.img.get("thumbnail"), world.img.get("landscape")
+    if thumbnail is not None and not thumbnail.startswith("https"):
         while not thumbnail.get("success", False):
             thumbnail = imagine(
                 {"model": "world", "id": world.id, "type": "thumbnail"},
@@ -67,7 +68,7 @@ def add_midj_images(world):
             world.imgs["thumbnails"] = thumbnail["imageUrls"]      
             thumbnail = thumbnail["imageUrls"][0]
     
-    if not world.img.get("landscape", "").startswith("https"):
+    if landscape is not None and not landscape.startswith("https"):
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
                 thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
