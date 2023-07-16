@@ -131,7 +131,8 @@ def add_midj_images(world):
                 ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
             if response.get("success", False):
               time.sleep(2) 
-        if i == chars.count - 1:
+
+        if i == len(chars) - 1:
             wait_for_image(char)
 
     events = world.events.filter(img='')
@@ -150,7 +151,7 @@ def add_midj_images(world):
             response = imagine({"model": "event", "id": event.id}, 
                 location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
             time.sleep(2)
-        if i == events.count - 1:
+        if i == len(events) - 1:
             wait_for_image(event)
 
     print('ding! world finished. wow!')
