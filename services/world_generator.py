@@ -72,18 +72,19 @@ def add_midj_images(world):
         for species in world.species.all():
             imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
             wait_for_image(species)
-            species.img = upscale_img(species)
+            species.img = upscale_img(species.img)
             species.save()
 
             for char in world.characters.filter(species=species):
                 imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
                 wait_for_image(char)
-                char.img = upscale_img(char)
+                char.img = upscale_img(char.img)
                 char.save()
 
         for event in world.events.all():
             imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
             wait_for_image(event)
+            event.img = upscale_img(event.img)
             event.save()
         
         return world
