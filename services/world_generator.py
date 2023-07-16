@@ -82,7 +82,7 @@ def add_midj_images(world):
     locations = world.locations.filter(img="none")
     locations_responses = []
     for i, location in enumerate(locations):
-        print(f'working on locations for {world.name}, world {world.id}, #{i}/{locations.length} incomplete locations')
+        print(f'working on #{i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}, ')
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "location", "id": location.id}, 
@@ -98,7 +98,7 @@ def add_midj_images(world):
     species_list = world.species.filter(img="none")
     species_responses = []
     for i, speciez in enumerate(species_list):
-        print(f'working on #{i}/{len(species_list)} incomplete species species for {world.name}, world {world.id}')
+        print(f'working on #{i + 1}/{len(species_list)} incomplete species species for {world.name}, world {world.id}')
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "species", "id": speciez.id}, 
@@ -112,7 +112,7 @@ def add_midj_images(world):
 
     chars = world.characters.filter(img="none")
     for i, char in enumerate(chars):
-        print(f'working on #{i}/{len(chars)} incomplete characters for {world.name}, world {world.id}')
+        print(f'working on #{i + 1}/{len(chars)} incomplete characters for {world.name}, world {world.id}')
         try:
             char_species = world.species.get(name=char.species)
         except Species.DoesNotExist:
@@ -134,7 +134,7 @@ def add_midj_images(world):
 
     events = world.events.filter(img='')
     for i, event in enumerate(events):
-        print(f'working on #{i}/{len(events)} incomplete events for {world.name}, world {world.id}')
+        print(f'working on #{i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
         event_location = None
         try:
             event_location = world.locations.get(name=event.location)
@@ -192,9 +192,9 @@ def add_dalle_images(world):
 # world = generate_random_world()
 # print(world)
 
-worlds = World.objects.all()
+worlds = World.objects.filter(img={})
 for i, world in enumerate(worlds):
-    print(f'Working on world {world.id}, #{i} / {len(worlds)} incomplete worlds')
+    print(f'Working on world {world.id}, #{i + 1} / {len(worlds)} incomplete worlds')
     add_midj_images(world)
 while True:
     try:
