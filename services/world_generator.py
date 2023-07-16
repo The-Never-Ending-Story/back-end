@@ -65,10 +65,9 @@ def add_midj_images(world):
             if thumbnail.get("success", False):
                 time.sleep(2)
 
-        thumbnail = wait_for_image(thumbnail)      
-        while wait_for_image(thumbnail) == False:
-            thumbnail = wait_for_image(thumbnail)
-        thumbnail = thumbnail["imageUrls"][0]
+        thumbnail = wait_for_image(thumbnail)
+        if thumbnail != "none":      
+            thumbnail = thumbnail["imageUrls"][0]
         
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
@@ -77,9 +76,8 @@ def add_midj_images(world):
                 time.sleep(2)
         
         landscape = wait_for_image(landscape)
-        while landscape == False:
-            landscape = wait_for_image(landscape)
-        landscape = landscape["imageUrls"][0]
+        if landscape != "none":
+            landscape = landscape["imageUrls"][0]
 
     locations = world.locations.filter(img="none")
     locations_responses = []
@@ -96,8 +94,6 @@ def add_midj_images(world):
     
     for i in range(len(locations_responses)):
         locations_responses[i] = wait_for_image(locations_responses[i])
-        while locations_responses[i] == False:
-            locations_responses[i] = wait_for_image(locations_responses[i])
             
     species_list = world.species.filter(img="none")
     species_responses = []
@@ -113,8 +109,6 @@ def add_midj_images(world):
 
     for i in range(len(species_responses)):
         species_responses[i] = wait_for_image(species_responses[i])
-        while species_responses[i] == False:
-            species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.filter(img="none")
     for i, char in enumerate(chars):
@@ -159,26 +153,26 @@ def add_midj_images(world):
 
 
 def wait_for_image(msg):
-    try:
-        update = get_progress(msg["messageId"])
+    if "messageId" in msg:
+        try:
+            update = get_progress(msg["messageId"])
+        except:
+            return 'none'
 
         if update["progress"] < 10:
             print("job started, brb...")
             time.sleep(42)
+            update = get_progress(msg["messageId"])
 
         while not update["progress"] == 100:
             print(f'hol up, job cookin.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
             if update["progress"] == "incomplete":
-                return ("woops! job hanging, moving on.")
+                return 'none'
 
         print("ding! job finished.")
         return update["response"]
-    
-    except:
-        print(f'woops, looks like {msg} is an invalid msg')
-        return False
     
 
 def add_dalle_images(world):
