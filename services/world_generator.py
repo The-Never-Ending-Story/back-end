@@ -122,7 +122,8 @@ def wait_for_image(instance, type=False):
             instance.refresh_from_db()
     else:
         while (not instance.img or instance.img == "none"):
-            print(instance.img + "--waiting...")
+            print(instance.img)
+            print("waiting...")
             time.sleep(5)
             instance.refresh_from_db()
     instance.refresh_from_db()
