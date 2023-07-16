@@ -120,13 +120,13 @@ def wait_for_image(msg):
     time.sleep(42)
     print(msg)
     if "messageId" in msg:
-        msg = get_progress(msg["messageId"])
-        while not msg["progress"] == 100:
+        update = get_progress(msg["messageId"])
+        while not update["progress"] == 100:
             print("waiting for job to finish...")
             time.sleep(4)
-            msg = get_progress(msg["messageId"])
+            update = get_progress(msg["messageId"])
     else:
-        print("Error: Message does not contain a messageId. Message: ", msg)
+        return False
 
 
     
