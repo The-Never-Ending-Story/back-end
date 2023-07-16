@@ -133,7 +133,7 @@ def add_midj_images(world):
               time.sleep(2) 
 
         if i == len(chars) - 1:
-            wait_for_image(char)
+            wait_for_image(response)
 
     events = world.events.filter(img='')
     for i, event in enumerate(events):
@@ -152,7 +152,7 @@ def add_midj_images(world):
                 location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
             time.sleep(2)
         if i == len(events) - 1:
-            wait_for_image(event)
+            wait_for_image(response)
 
     print('ding! world finished. wow!')
 
