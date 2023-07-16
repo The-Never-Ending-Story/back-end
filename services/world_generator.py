@@ -55,6 +55,7 @@ def add_midj_images(world):
 
     thumbnail, landscape = world.img.get("thumbnail"), world.img.get("landscape")
     if thumbnail is not None and not thumbnail.startswith("https"):
+        thumbnail = {}
         while not thumbnail.get("success", False):
             thumbnail = imagine(
                 {"model": "world", "id": world.id, "type": "thumbnail"},
@@ -69,6 +70,7 @@ def add_midj_images(world):
             thumbnail = thumbnail["imageUrls"][0]
     
     if landscape is not None and not landscape.startswith("https"):
+        landscape = {}
         while not landscape.get("success", False):
             landscape = imagine({"model": "world", "id": world.id, "type": "landscape"}, 
                 thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3")
