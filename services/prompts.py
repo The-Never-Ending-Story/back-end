@@ -61,7 +61,7 @@ Your response should follow this structure:
   "events": [{{
     "type": (type of event),
     "age": (the epoch of the world),
-    "location": (location from above)
+    "location": (location from above),
     "time": (calendar year),
     "name": (name),
     "lore": (description),
