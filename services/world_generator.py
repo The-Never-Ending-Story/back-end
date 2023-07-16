@@ -53,10 +53,9 @@ def generate_random_world():
 
 def add_midj_images(world):
     thumbnail = landscape = {}
-    img = world.get("img")
-    
-    if isinstance(img, dict) and img.get("landscape"):
-        thumbnail, landscape = img["thumbnail"], img["landscape"]
+
+    if world.img.get("landscape"):
+        thumbnail, landscape = world.img["thumbnail"], world.img["landscape"]
     else:
         while not thumbnail.get("success", False):
             thumbnail = imagine(
@@ -101,14 +100,14 @@ def add_midj_images(world):
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "species", "id": speciez.id}, 
-                thumbnail["imageUrls"][0] + " " + landscape["imageUrls"][0] + " " +
+                thumbnail + " " + landscape + " " +
                 ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4")
             time.sleep(2)
 
     for i in range(len(species_list)):
         species_list[i] = wait_for_image(species_list[i])
 
-    chars = world.filter(img="none")
+    chars = world.characters.filter(img="none")
     for char in chars:
         char_species = None
         try:
@@ -120,15 +119,36 @@ def add_midj_images(world):
                 char_species = None
 
         species_url = char_species.img if char_species else world.species.order_by('?').first().img
-        locations_url = world.locations.order_by('?').first().img
+        location_url = world.locations.order_by('?').first().img
 
         response = {}
         while not response.get("success", False):
             response = imagine({"model": "character", "id": char.id}, 
-                locations_url + " " + species_url + " " +
+                location_url + " " + species_url + " " +
                 ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
             if response.get("success", False):
               time.sleep(2) 
+
+    events = world.events.filter(img__isnull=True)
+    for event in events:
+        event_location = None
+        try:
+            event_location = world.locations.get(name=event.location)
+        except Location.DoesNotExist:
+            event_location = None
+
+        response = {}
+        location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+        species_url = char_species.img if char_species else world.species.order_by('?').first().img
+
+        while not response.get("success", False):
+            response = imagine({"model": "event", "id": event.id}, 
+                location_url + " " + species_url + " " +
+                ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+            time.sleep(2)
+
+    for i in range(len(species_list)):
+        species_list[i] = wait_for_image(species_list[i])
 
 
 def wait_for_image(msg):
