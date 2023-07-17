@@ -87,7 +87,7 @@ def add_midj_images(world):
                 time.sleep(2)
 
         thumbnail = wait_for_image(thumbnail)
-        if thumbnail != "none":
+        if not (thumbnail == "none" or thumbnail == "incomplete"):
             world_imgs["thumbnails"] = thumbnail["imageUrls"]
             world_img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
         else:
@@ -320,7 +320,7 @@ def wait_for_image(msg):
         if isinstance(progress, str) and progress != 'incomplete':
             progress = int(progress)
             
-        if progress < 10:
+        if isinstance(progress, int) and progress < 10:
             print("job started, brb...")
             time.sleep(42)
             update = get_progress(msg["messageId"])
@@ -359,7 +359,7 @@ def update_all_images():
     print("holy cow, that's all folks!!")
 
 
-def generate_new_worlds(n=100):
+def generate_new_worlds(n=13):
     new_worlds = []
     for _ in range(n):
         try:
