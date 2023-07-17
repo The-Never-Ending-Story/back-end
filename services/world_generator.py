@@ -332,4 +332,4 @@ def generate_new_worlds(n=100):
     
     return new_worlds
 
-generate_new_worlds(10)
+generate_new_worlds(3)
