@@ -140,7 +140,7 @@ def add_midj_images(world):
 
         if isinstance(location.img, str) and not location.img == "none":
             try:
-                img = location.img = upscale_img(location.img)
+                location.img = upscale_img(location.img)
                 base_url = img[-1:]
                 location.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
             except:
@@ -171,7 +171,7 @@ def add_midj_images(world):
         print(f'working on {i + 1}/{len(species_list)} incomplete species for {world.name}, world {world.id}')
         if isinstance(speciez.img, str) and not speciez.img == "none":
           try:
-              img = speciez.img = upscale_img(speciez.img)
+              speciez.img = upscale_img(speciez.img)
               base_url = img[-1:]
               speciez.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
           except:
@@ -312,20 +312,24 @@ def add_dalle_images(world):
         
         return world
 
+
+def update_all_images():
+    worlds = World.objects.all()
+    for i, world in enumerate(worlds):
+        print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} worlds')
+        add_midj_images(world)
+    print("holy cow, that's all folks!!")
+
+
+def generate_new_worlds(n=100):
+    new_worlds = []
+    for _ in range(n):
+        try:
+            new_world = generate_random_world()
+            new_worlds.append(new_world)
+        except Exception as e:
+            print(f"Error generating new world: {e}")
     
-# world = generate_random_world()
-# print(world)
+    return new_worlds
 
-worlds = World.objects.all()
-for i, world in enumerate(worlds):
-    print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} incomplete worlds')
-    add_midj_images(world)
-print("holy cow, that's all folks!!")
-
-
-# while True:
-#     try:
-#         new_world = generate_random_world()
-#         print(new_world)
-#     except Exception as e:
-#         print(f"Error generating new world: {e}")
+generate_new_worlds(3)
