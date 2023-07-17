@@ -124,7 +124,7 @@ def add_midj_images(world):
                 time.sleep(2)
 
         landscape = wait_for_image(landscape)
-        if landscape != "none":
+        if isinstance(landscape, dict):
             world_imgs["landscapes"] = landscape["imageUrls"]
             world_img["landscape"] = landscape = landscape["imageUrls"][0]
         else:
