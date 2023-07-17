@@ -66,7 +66,7 @@ def add_midj_images(world):
             base_url = re.sub(r"/0_\d\.png$", "", thumbnail) 
             world_imgs["thumbnails"] = [f"{base_url}/0_{i}.png" for i in range(4)]
 
-    elif thumbnail is not None and isinstance(thumbnail, str):
+    elif thumbnail is not None and isinstance(thumbnail, str) and not thumbnail=="none":
         try: 
             thumbnail = upscale_img(thumbnail)
             if isinstance(thumbnail, str) and thumbnail.startswith('https'):
@@ -103,7 +103,7 @@ def add_midj_images(world):
             base_url = re.sub(r"/0_\d\.png$", "", landscape) 
             world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
     
-    elif landscape is not None and isinstance(landscape, str):
+    elif landscape is not None and isinstance(landscape, str) and not landscape=="none":
         try: 
             landscape = upscale_img(landscape)
             if isinstance(landscape, str) and landscape.startswith('https'):
