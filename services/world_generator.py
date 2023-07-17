@@ -241,13 +241,13 @@ def add_midj_images(world):
 
     for i, event in enumerate(events):
         print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
-        if isinstance(char.img, str) and not char.img == "none":
+        if isinstance(event.img, str) and not event.img == "none":
           try:
-              img = char.img = upscale_img(char.img)
+              img = event.img = upscale_img(event.img)
               base_url = img[-1:]
-              char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+              event.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
           except:
-              char.img = "none"
+              event.img = "none"
 
         else:
             event_location = None
