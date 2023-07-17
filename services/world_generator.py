@@ -220,9 +220,13 @@ def add_midj_images(world):
                   except Species.DoesNotExist:
                       char_species = None
 
-
-            species_url = char_species.img if char_species else world.species.order_by('?').first().img
-            location_url = world.locations.order_by('?').first().img
+            if not char_species:
+              char_species = world.species.order_by('?').first() 
+            
+            species_url = char_species.img if char_species else ''
+            
+            first_location = world.locations.order_by('?').first()
+            location_url = first_location.img if first_location else ''
 
             response = {}
             while not response.get("success", False):
