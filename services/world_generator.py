@@ -60,8 +60,8 @@ def add_midj_images(world):
     landscape = world_img.get("landscape")
 
     if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
-        if "thumbnails" not in world_imgs or not len(world_imgs["thumbnails"]) == 4:
-            base_url = thumbnail[-1:]
+        if "thumbnails" not in world_imgs or not world_imgs["thumbnails"][0].startswith("https"):
+            base_url = thumbnail[:-1]
             world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif thumbnail is not None and isinstance(thumbnail, str):
@@ -69,7 +69,7 @@ def add_midj_images(world):
             thumbnail = upscale_img(thumbnail)
             if isinstance(thumbnail, str) and thumbnail.startswith('https'):
                 world.img["thumbnail"] = thumbnail
-                base_url = thumbnail[-1:]
+                base_url = thumbnail[:-1]
                 world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
         except: 
             thumbnail = None
@@ -96,8 +96,8 @@ def add_midj_images(world):
 
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
-        if "landscapes" not in world.imgs or not len(world.imgs["landscapes"]) == 4:
-            base_url = landscape[-1:]
+        if "landscapes" not in world.imgs or not world.imgs["landscapes"][0].startswith('https'):
+            base_url = landscape[:-1]
             world_imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
     
     elif landscape is not None and isinstance(landscape, str):
@@ -105,7 +105,7 @@ def add_midj_images(world):
             landscape = upscale_img(landscape)
             if isinstance(landscape, str) and landscape.startswith('https'):
                 world_img["landscape"] = landscape
-                base_url = landscape[-1:]
+                base_url = landscape[:-1]
                 world_imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
         except: 
             landscape = None
@@ -141,7 +141,7 @@ def add_midj_images(world):
         if isinstance(location.img, str) and not location.img == "none":
             try:
                 location.img = upscale_img(location.img)
-                base_url = img[-1:]
+                base_url = img[:-1]
                 location.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
             except:
                 location.img = "none"
@@ -172,7 +172,7 @@ def add_midj_images(world):
         if isinstance(speciez.img, str) and not speciez.img == "none":
           try:
               speciez.img = upscale_img(speciez.img)
-              base_url = img[-1:]
+              base_url = img[:-1]
               speciez.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
           except:
               speciez.img = "none"
@@ -197,17 +197,22 @@ def add_midj_images(world):
     for i in range(len(species_responses)):
         species_responses[i] = wait_for_image(species_responses[i])
 
-    chars = world.characters.filter(~Q(img__startswith="https"))
+    chars = world.characters.all()
 
     for i, char in enumerate(chars):
-        print(f'working on {i + 1}/{len(chars)} incomplete characters for {world.name}, world {world.id}')
+        print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
+        if isinstance(char.img, str) and char.img.startswith('https') and not char.imgs[0].startswith('https'):
+            base_url = char.img[:-1]
+            char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"] 
+        
         if isinstance(char.img, str) and not char.img == "none":
           try:
               img = char.img = upscale_img(char.img)
-              base_url = img[-1:]
+              base_url = img[:-1]
               char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
           except:
               char.img = "none"
+              char.imgs = []
         
         else:
             try:
@@ -237,14 +242,18 @@ def add_midj_images(world):
         if i == len(chars) - 1:
             wait_for_image(response)
 
-    events = world.events.filter(~Q(img__startswith='https'))
+    events = world.events.all()
 
     for i, event in enumerate(events):
         print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
-        if isinstance(event.img, str) and not event.img == "none":
+        if isinstance(event.img, str) and event.img.startswith('https') and not event.imgs[0].startswith('https'):
+            base_url = char.img[:-1]
+            event.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+
+        elif isinstance(event.img, str) and not event.img == "none" and not event.img == '':
           try:
               img = event.img = upscale_img(event.img)
-              base_url = img[-1:]
+              base_url = img[:-1]
               event.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
           except:
               event.img = "none"
