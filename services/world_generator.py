@@ -178,14 +178,12 @@ def add_midj_images(world):
               speciez.img = "none"
       
         else:
-            thumbnail = "none" if thumbnail is None else thumbnail
-            landscape = "none" if landscape is None else landscape
+            thumbnail = '' if thumbnail is None else thumbnail
+            landscape = '' if landscape is None else landscape
             print (thumbnail + landscape)
         
             response = {}
             while not response.get("success", False):
-                thumbnail = "none" if thumbnail is None else thumbnail
-                landscape = "none" if landscape is None else landscape
                 response = imagine(
                       {"model": "species", "id": speciez.id},
                       thumbnail + " " + landscape + " " +
