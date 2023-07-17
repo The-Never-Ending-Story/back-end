@@ -20,7 +20,7 @@ from django.apps import apps
 def world_list(request):
 
   if request.method == 'GET':
-    worlds = World.objects.all()
+    worlds = World.objects.filter(discovered=True)
     serializer = WorldSerializer(worlds, many=True)
     return Response(serializer.data)
   elif request.method == 'POST':
