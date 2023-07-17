@@ -61,23 +61,22 @@
     <li><a href="#database-schema">Database Schema</a></li>
     <li><a href="#endpoints">Endpoints</a></li>
     <li><a href="#testing">Testing</a></li>
-    <li><a href="#contributors">Contributors</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![Hyperloom Screen Shot][hyperloom-screenshot]
+![Hyperloom Home Page](images/home.png)
 
 Hyperloom is a web based application that leverages ChatGPT and Midjourney to provide users new & expansive fictional worlds. Users are able to browse previously generated worlds or create new ones with the click of a button. Hyperloom aims to foster the imagination and excitement of its users while providing them with high resolution images to give the sense of an immersive experience.
 
 Hyperloom was built with a separate frontend and backend. The backend API service exposes RESTful endpoints returning JSON data for the frontend to consume. The backend seeds its database using a script for generating textual descriptions of worlds via the ChatGPT API. The ChatGPT API creates the AI-generated textual metadata for an imaginary world. This metadata is then also used to create the prompt that is sent to the Midjourney API to create AI-generated images based off of those descriptions.
 
-- [Production Website][hyperloom-frontend-url]
-- [Backend API Service][hyperloom-backend-url]
+- [Production Website][deployed-frontend-url]
+- [Backend API Service][deployed-backend-url]
 - [Hyperloom GitHub][hyperloom-gh-url]
 - [Frontend Repository][frontend-gh-url]
 - [Backend Repository][backend-gh-url]
@@ -201,17 +200,6 @@ Potential features, functionality, or refactors for the future:
 - User features to save and share favorite worlds
 - Search features to find worlds
 
-<!-- CONTRIBUTORS -->
-## Contributors
-
-- Andrew Bowman: [![LinkedIn][linkedin-shield]][andrew-li-url] [![GitHub][github-shield]][andrew-gh-url]
-- Sean Cowans: [![LinkedIn][linkedin-shield]][andrew-li-url] [![GitHub][github-shield]][andrew-gh-url]
-- Branden Ge: [![LinkedIn][linkedin-shield]][andrew-li-url] [![GitHub][github-shield]][andrew-gh-url]
-
-Special thanks to Brian Zanti, our instructor and project manager
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- LICENSE -->
 ## License
 
@@ -219,10 +207,14 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
+<!-- CONTACT -->
+## Contact
 
-- [ChatGPT API]()
+- Andrew Bowman: [![LinkedIn][linkedin-shield]][andrew-li-url] [![GitHub][github-shield]][andrew-gh-url]
+- Sean Cowans: [![LinkedIn][linkedin-shield]][sean-li-url] [![GitHub][github-shield]][sean-gh-url]
+- Branden Ge: [![LinkedIn][linkedin-shield]][branden-li-url] [![GitHub][github-shield]][branden-gh-url]
+
+Special thanks to Brian Zanti, our instructor and project manager
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -270,9 +262,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 [frontend-gh-url]: https://github.com/The-Never-Ending-Story/front-end
 [backend-gh-url]: https://github.com/The-Never-Ending-Story/back-end
 
-[hyperloom-screenshot]: images/hyperloom-home.png
-[hyperloom-frontend-url]: https://hyper-loom-explorer.vercel.app/
-[hyperloom-backend-url]: https://hyperloom-d209dae18b26.herokuapp.com/worlds
+[deployed-frontend-url]: https://hyper-loom-explorer.vercel.app/
+[deployed-backend-url]: https://hyperloom-d209dae18b26.herokuapp.com/worlds
 
 [linkedin-shield]: https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white
 [github-shield]: https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white
