@@ -13,26 +13,6 @@ from worlds.models import World, Event, Location, Character, Species
 import time
 
 
-def update_all_images():
-    worlds = World.objects.all()
-    for i, world in enumerate(worlds):
-        print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} worlds')
-        add_midj_images(world)
-    print("holy cow, that's all folks!!")
-
-
-def generate_new_worlds(n=100):
-    new_worlds = []
-    for _ in range(n):
-        try:
-            new_world = generate_random_world()
-            new_worlds.append(new_world)
-        except Exception as e:
-            print(f"Error generating new world: {e}")
-    
-    return new_worlds
-
-
 def generate_random_world():
     attributes = random_attributes()
     print(attributes)
@@ -333,3 +313,23 @@ def add_dalle_images(world):
         return world
 
 
+def update_all_images():
+    worlds = World.objects.all()
+    for i, world in enumerate(worlds):
+        print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} worlds')
+        add_midj_images(world)
+    print("holy cow, that's all folks!!")
+
+
+def generate_new_worlds(n=100):
+    new_worlds = []
+    for _ in range(n):
+        try:
+            new_world = generate_random_world()
+            new_worlds.append(new_world)
+        except Exception as e:
+            print(f"Error generating new world: {e}")
+    
+    return new_worlds
+
+generate_new_worlds(10)
