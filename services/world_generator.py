@@ -340,5 +340,3 @@ def generate_new_worlds(n=100):
             print(f"Error generating new world: {e}")
     
     return new_worlds
-
-generate_new_worlds(3)
