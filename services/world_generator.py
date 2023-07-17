@@ -11,6 +11,7 @@ from .attributes import random_attributes
 from django.db.models import Q
 from worlds.models import World, Event, Location, Character, Species
 import time
+import re
 
 
 def generate_random_world():
@@ -60,17 +61,18 @@ def add_midj_images(world):
     landscape = world_img.get("landscape")
 
     if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
-        if "thumbnails" not in world_imgs or not world_imgs["thumbnails"][0].startswith("https"):
-            base_url = thumbnail[:-1]
-            world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
-    
+        pattern = re.compile(r"/0_\d\.png$")
+        if "thumbnails" not in world_imgs or not pattern.search(world_imgs["thumbnails"][0]) and pattern.search(thumbnail):
+            base_url = re.sub(r"/0_\d\.png$", "", thumbnail) 
+            world_imgs["thumbnails"] = [f"{base_url}/0_{i}.png" for i in range(4)]
+
     elif thumbnail is not None and isinstance(thumbnail, str):
         try: 
             thumbnail = upscale_img(thumbnail)
             if isinstance(thumbnail, str) and thumbnail.startswith('https'):
                 world.img["thumbnail"] = thumbnail
-                base_url = thumbnail[:-1]
-                world_imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+                base_url = thumbnail[:-7]
+                world_imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
         except: 
             thumbnail = None
 
@@ -96,17 +98,18 @@ def add_midj_images(world):
 
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
-        if "landscapes" not in world.imgs or not world.imgs["landscapes"][0].startswith('https'):
-            base_url = landscape[:-1]
-            world_imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+        pattern = re.compile(r"/0_\d\.png$")
+        if "landscapes" not in world_imgs or not pattern.search(world_imgs["landscapes"][0]) and pattern.search(landscape):
+            base_url = re.sub(r"/0_\d\.png$", "", landscape) 
+            world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
     
     elif landscape is not None and isinstance(landscape, str):
         try: 
             landscape = upscale_img(landscape)
             if isinstance(landscape, str) and landscape.startswith('https'):
                 world_img["landscape"] = landscape
-                base_url = landscape[:-1]
-                world_imgs["landscapes"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+                base_url = landscape[:-7]
+                world_imgs["landscapes"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
         except: 
             landscape = None
 
@@ -133,16 +136,23 @@ def add_midj_images(world):
     world.imgs = world_imgs
     world.save()
       
-    locations = world.locations.filter(~Q(img__startswith="https"))
+    locations = world.locations.all()
     locations_responses = []
     for i, location in enumerate(locations):
         print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
 
-        if isinstance(location.img, str) and not location.img == "none":
+        if isinstance(location.img, str) and location.imgs and not location.imgs[0].endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not location.imgs or not pattern.search(location.imgs[0]) and pattern.search(location.img):
+                base_url = re.sub(r"/0_\d\.png$", "", location.img) 
+                world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
+
+
+        if isinstance(location.img, str) and not (location.img == "none" or location.img == ''):
             try:
                 location.img = upscale_img(location.img)
-                base_url = img[:-1]
-                location.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+                base_url = img[:-7]
+                location.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
             except:
                 location.img = "none"
 
@@ -170,15 +180,17 @@ def add_midj_images(world):
     for i, speciez in enumerate(species_list):
         print(f'working on {i + 1}/{len(species_list)} species for {world.name}, world {world.id}')
 
-        if isinstance(speciez.img, str) and speciez.img.startswith('https') and speciez.imgs and not speciez.imgs[0].startswith('https'):
-            base_url = speciez.img[:-1]
-            speciez.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"] 
+        if isinstance(speciez.img, str) and speciez.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not speciez.imgs or not pattern.search(speciez.imgs[0]) and pattern.search(speciez.img):
+                base_url = re.sub(r"/0_\d\.png$", "", speciez.img) 
+                speciez.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
 
         elif isinstance(speciez.img, str) and not (speciez.img == "none" or speciez.img == ''):
           try:
               speciez.img = upscale_img(speciez.img)
-              base_url = img[:-1]
-              speciez.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+              base_url = img[:-7]
+              speciez.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
           except:
               speciez.img = "none"
       
@@ -208,15 +220,19 @@ def add_midj_images(world):
     for i, char in enumerate(chars):
         print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
 
-        if isinstance(char.img, str) and char.img.startswith('https') and char.imgs and not char.imgs[0].startswith('https'):
-            base_url = char.img[:-1]
-            char.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"] 
+        
+        if isinstance(char.img, str) and char.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not char.imgs or not pattern.search(char.imgs[0]) and pattern.search(char.img):
+                base_url = re.sub(r"/0_\d\.png$", "", char.img) 
+                char.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
+  
         
         if isinstance(char.img, str) and not (char.img == "none" or char.img == ''):
           try:
               img = char.img = upscale_img(char.img)
-              base_url = img[:-1]
-              char.imgs = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+              base_url = img[:-7]
+              char.imgs = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
           except:
               char.img = "none"
               char.imgs = []
@@ -256,15 +272,18 @@ def add_midj_images(world):
 
     for i, event in enumerate(events):
         print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
-        if isinstance(event.img, str) and event.img.startswith('https') and event.imgs and not event.imgs[0].startswith('https'):
-            base_url = char.img[:-1]
-            event.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+        
+        if isinstance(event.img, str) and event.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not event.imgs or not pattern.search(event.imgs[0]) and pattern.search(event.img):
+                base_url = re.sub(r"/0_\d\.png$", "", event.img) 
+                event.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
 
-        elif isinstance(event.img, str) and not event.img == "none" and not event.img == '':
+        elif isinstance(event.img, str) and not (event.img == "none" or event.img == ''):
           try:
               img = event.img = upscale_img(event.img)
-              base_url = img[:-1]
-              event.imgs["thumbnails"] = [base_url + "0", base_url + "1", base_url + "2", base_url + "3"]
+              base_url = img[:-7]
+              event.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
           except:
               event.img = "none"
 
