@@ -203,6 +203,7 @@ def add_midj_images(world):
         species_responses[i] = wait_for_image(species_responses[i])
 
     chars = world.characters.all()
+    char_responses = []
 
     for i, char in enumerate(chars):
         print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
@@ -245,8 +246,11 @@ def add_midj_images(world):
                 if response.get("success", False):
                   time.sleep(2) 
 
+            char_responses.append(response)
+
             if i == len(chars) - 1:
-                wait_for_image(response)
+                for response in char_responses:
+                    wait_for_image(response)
 
     events = world.events.all()
 
