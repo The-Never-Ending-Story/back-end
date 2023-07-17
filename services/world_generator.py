@@ -245,8 +245,8 @@ def add_midj_images(world):
                 if response.get("success", False):
                   time.sleep(2) 
 
-        if i == len(chars) - 1:
-            wait_for_image(response)
+            if i == len(chars) - 1:
+                wait_for_image(response)
 
     events = world.events.all()
 
