@@ -14,4 +14,4 @@ class WorldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = World
-        fields = ['id', 'name', 'blurb', 'description', 'geoDynamics', 'magicTechnology', 'img', 'species', 'locations', 'characters', 'events', 'lore']
+        fields = ['id', 'name', 'blurb', 'genres', 'description', 'geoDynamics', 'magicTechnology', 'img', 'species', 'locations', 'characters', 'events', 'lore']
