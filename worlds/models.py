@@ -3,6 +3,7 @@ from species.models import Species
 from events.models import Event
 from locations.models import Location
 from characters.models import Character
+import re
 
 class World(models.Model):
     name = models.CharField(max_length=250)
@@ -34,6 +35,20 @@ class World(models.Model):
     @property
     def species(self):
         return self.species_set.all()
+    
+    @property
+    def is_complete(self):
+        pattern = re.compile(r"\.png$")
+        
+        if not (pattern.search(self.img["thumbnail"]) and pattern.search(self.img["landscape"])):
+            return False
+        
+        for model in [self.locations, self.events, self.characters, self.species]:
+            for instance in model:
+                if not pattern.search(instance.img):
+                    return False
+        
+        return True
 
     def __str__(self):
         return str(self.id) + " " + self.name
