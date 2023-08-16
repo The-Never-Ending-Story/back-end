@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from worlds import views
+from django.contrib import admin
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,4 +39,6 @@ urlpatterns = [
     path('worlds/<int:world_id>/events/<int:id>', views.world_event_detail, name='get_world_event'),
     path('webhook/', views.webhook, name='webhook'),
     path('worlds/discover', views.discover_world, name='get_discover_world'),
+    path("login", views.login, name='login'),
+    path('register', views.register, name='register'),
 ]
