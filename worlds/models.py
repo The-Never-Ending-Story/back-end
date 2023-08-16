@@ -40,16 +40,18 @@ class World(models.Model):
     def is_complete(self):
         pattern = re.compile(r"\.png$")
 
-        thumbnail_img = self.img.get("thumbnail", None)
-        landscape_img = self.img.get("landscape", None)
+        if isinstance(self.img, dict):
+            thumbnail_img = self.img.get("thumbnail", None)
+            landscape_img = self.img.get("landscape", None)
+            if not (thumbnail_img and landscape_img and pattern.search(thumbnail_img) and pattern.search(landscape_img)):
+                return False
+        else:
+            if not pattern.search(self.img):
+                return False
 
-        if not (thumbnail_img and landscape_img and pattern.search(thumbnail_img) and pattern.search(landscape_img)):
-            return False
-        
         for model in [self.locations, self.events, self.characters, self.species]:
             for instance in model:
-                instance_img = instance.img.get("img", None)
-                if not instance_img or not pattern.search(instance_img):
+                if isinstance(instance.img, str) and not pattern.search(instance.img):
                     return False
         
         return True
