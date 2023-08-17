@@ -40,6 +40,8 @@ def generate_random_world():
             Location.objects.create(world=world, **location)
 
         world.save()
+        print("world object created: \n")
+        print(world)
         add_midj_images(world)
         return world
 
@@ -50,8 +52,125 @@ def generate_random_world():
         """
         return error
     
-
 def add_midj_images(world):
+    print(f'working on landscapes for world {world.id}...')
+
+    thumbnail, landscape = {}, {}
+    while not thumbnail.get("success", False):
+        thumbnail = imagine(
+            {"model": "world", "id": world.id, "type": "thumbnail"},
+            ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+        )
+        if thumbnail.get("success") == False:
+            time.sleep(3)
+
+    thumbnail = wait_for_image(thumbnail)
+    
+    if not (thumbnail == "none" or thumbnail == "incomplete"):
+        thumbnail = thumbnail["imageUrls"][0]
+        while not landscape.get("success", False):
+            landscape = imagine(
+            {"model": "world", "id": world.id, "type": "landscape"},
+            thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 3:4"
+            )
+            if landscape.get("success") == False:
+                time.sleep(3)
+
+        landscape = wait_for_image(landscape)
+    else:
+        return 'No thumbnail found'
+
+    if not (landscape == "none" or landscape == "incomplete"):
+        landscape = landscape["imageUrls"][0]
+
+    locations = world.locations.all()
+    for i, location in enumerate(locations):
+        print(f'working on {i+1}/{len(locations)} locations for {world.name}, world {world.id}')
+   
+        response = {}
+        while not response.get("success", False):
+            response = imagine(
+                {"model": "location", "id": location.id},
+                thumbnail + " " + landscape + " " +
+                ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
+            )
+            if response.get("success") == False:
+                time.sleep(3)
+
+        response = wait_for_image(response) 
+
+    species_list = world.species.all()
+    for i, speciez in enumerate(species_list):
+        print(f'working on {i + 1}/{len(species_list)} species for {world.name}, world {world.id}')
+
+        response = {}
+        while not response.get("success", False):
+            response = imagine(
+                    {"model": "species", "id": speciez.id},
+                    thumbnail + " " + landscape + " " +
+                    ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
+                )
+            if response.get("success") == False:
+                time.sleep(3)
+
+        response = wait_for_image(response)
+
+    chars = world.characters.all()
+
+    for i, char in enumerate(chars):
+        print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
+
+        try:
+            char_species = world.species.get(name=char.species)
+        except Species.DoesNotExist:
+                try:
+                    char_species = world.species.get(name=char.species[:-1])
+                except Species.DoesNotExist:
+                    char_species = None
+
+        if not char_species:
+            char_species = world.species.order_by('?').first() 
+        
+        species_url = char_species.img if char_species else ''
+        
+        first_location = world.locations.order_by('?').first()
+        location_url = first_location.img if first_location else ''
+
+        response = {}
+        while not response.get("success", False):
+            response = imagine({"model": "character", "id": char.id}, 
+                location_url + " " + species_url + " " +
+                ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
+            if response.get("success") == False:
+                time.sleep(3) 
+        
+        response = wait_for_image(response)
+
+    events = world.events.all()
+
+    for i, event in enumerate(events):
+        print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
+
+        try:
+            event_location = world.locations.get(name=event.location)
+        except Location.DoesNotExist:
+            event_location = None
+
+        response = {}
+        location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+
+        while not response.get("success", False):
+            response = imagine({"model": "event", "id": event.id}, 
+                location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+            if response.get("success") == False:
+                time.sleep(3)
+
+        response = wait_for_image(response)
+
+    print('ding! world finished. wow!')
+    
+
+def update_midj_images(world):
     print(f'working on landscapes for world {world.id}...')
     
     world_img = world.img
@@ -83,8 +202,8 @@ def add_midj_images(world):
                 {"model": "world", "id": world.id, "type": "thumbnail"},
                 ' '.join(world.genres) + " landscape view of this world: " + world.imagine
             )
-            if thumbnail.get("success", False):
-                time.sleep(2)
+            if thumbnail.get("success") == False:
+                time.sleep(3)
 
         thumbnail = wait_for_image(thumbnail)
         if not (thumbnail == "none" or thumbnail == "incomplete"):
@@ -120,8 +239,8 @@ def add_midj_images(world):
                 {"model": "world", "id": world.id, "type": "landscape"},
                 thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3"
             )
-            if landscape.get("success", False):
-                time.sleep(2)
+            if landscape.get("success") == False:
+                time.sleep(3)
 
         landscape = wait_for_image(landscape)
         if isinstance(landscape, dict):
@@ -316,19 +435,20 @@ def wait_for_image(msg):
         except:
             return 'none'
 
-        progress = get_progress(msg["messageId"])["progress"]
-        if isinstance(progress, str) and progress != 'incomplete':
-            progress = int(progress)
+        if isinstance(update["progress"], str) and update["progress"] != 'incomplete':
+            update["progress"] = int(update["progress"])
             
-        if isinstance(progress, int) and progress < 10:
+        while isinstance(update["progress"], int) and update["progress"] == 0:
             print("job started, brb...")
             time.sleep(42)
             update = get_progress(msg["messageId"])
+
 
         while not update["progress"] == 100:
             print(f'hol\' up, job cookin\'.. {update["progress"]}%')
             time.sleep(4)
             update = get_progress(msg["messageId"])
+
             if update["progress"] == "incomplete":
                 print('woops! job hanging, moving on..')
                 return 'incomplete'
