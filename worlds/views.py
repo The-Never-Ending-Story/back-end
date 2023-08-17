@@ -301,11 +301,10 @@ def webhook(request):
 
       if not isinstance(instance, World):
         instance.imgs = image_urls  
-      
-      if ref.get("type"):
-        instance.img[ref["type"]] = image_urls[0]
-      else:
         instance.img = image_urls[0]
+      elif ref.get("type"):
+        instance.imgs[ref["type"] + "s"] = image_urls
+        instance.img[ref["type"]] = image_urls[0]
 
       instance.save()
     else: 
