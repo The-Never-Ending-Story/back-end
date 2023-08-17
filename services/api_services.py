@@ -6,12 +6,12 @@ from .settings import MIDJ_API_KEY
 import time
 
 
-def gpt_response(prompt):
+def gpt_response(prompt, model="gpt-4"):
     openai.api_key = OPENAI_API_KEY
     messages = [{"role": "system", "content": "You are an API endpoint. Please respond as a JSON field"},
                 {"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=model,
         messages=messages,
         temperature=1.0,
         max_tokens=3000,
@@ -56,7 +56,7 @@ def imagine(ref, prompt):
 
 
 def get_progress(msgid):
-    url = f'https://api.thenextleg.io/v2/message/{msgid}?expireMins=2'
+    url = f'https://api.thenextleg.io/v2/message/{msgid}'
 
     headers = {
     'Authorization': f'Bearer {MIDJ_API_KEY}',
