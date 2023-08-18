@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")  # Update with your actual settings module
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings") 
 
 import django
 django.setup()
@@ -10,3 +10,4 @@ from worlds.models import World
 worlds = World.objects.all()
 for world in worlds:
     categorize_world(world)
+    world.save()
