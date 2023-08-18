@@ -48,8 +48,9 @@ def landscapes_sample(earthly):
         return landscapes
     
 def categorize_world(world):
-    genres = world.genres
-    world.category = genres[0]
+    for category, category_genres in CATEGORIES.items():
+        if world.genres[0] in category_genres:
+            world.category = category
     
 CATEGORIES = {
     "Historical & Cultural": 
