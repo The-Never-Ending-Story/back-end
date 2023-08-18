@@ -9,6 +9,7 @@ class World(models.Model):
     name = models.CharField(max_length=250)
     discovered = models.BooleanField(default=False)
     earthly = models.BooleanField(default=True)
+    category = models.CharField(max_length=250, default='')
     genres = models.JSONField(default=dict)
     blurb = models.CharField(max_length=250)
     description = models.TextField(default='')

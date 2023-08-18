@@ -47,6 +47,115 @@ def landscapes_sample(earthly):
             landscapes.append(random.sample(GEODYNAMICS["landscapes"][earthly], 1)[0] + " " + random.sample(GEODYNAMICS["landscapes"]["earthly"], 1)[0])
         return landscapes
     
+def categorize_world(world):
+    genres = world.genres
+    world.category = genres[0]
+    
+CATEGORIES = {
+    "Historical & Cultural": 
+        ["1950s Suburbia"
+        ,"American Pioneers"
+        ,"American Revolution"
+        ,"Americana"
+        ,"Ancient Egypt"
+        ,"Art Deco"
+        ,"Art Nouveau"
+        ,"Baroque"
+        ,"Bauhaus"
+        ,"Classicism"
+        ,"Danish Pastel"
+        ,"Elizabethan England"
+        ,"Gothic"
+        ,"Impressionism"
+        ,"Italian Renaissance"
+        ,"Medieval"
+        ,"Neoclassicism"
+        ,"Neo-Romanism"
+        ,"Old Hollywood"
+        ,"Pre-Raphaelite"
+        ,"Romanticism"
+        ,"Victorian"
+        ,"World War II"],
+
+    "Nature & Environment":
+        ["Autumn"
+        ,"Australian Outback"
+        ,"Beach Day"
+        ,"Cabincore"
+        ,"Cottagecore"
+        ,"Desertwave"
+        ,"Earthcore"
+        ,"Forestpunk"
+        ,"Gardencore"
+        ,"Golden Hour"
+        ,"Grasscore"
+        ,"Highlandcore"
+        ,"Junglecore"
+        ,"Naturecore"
+        ,"Ocean Academia"
+        ,"Ocean Grunge"
+        ,"Rusticcore"
+        ,"Swampcore"],
+
+    "Urban & Modern":
+        ["Abstract Tech"
+        ,"Atompunk"
+        ,"City Pop"
+        ,"Cyberprep"
+        ,"Decopunk"
+        ,"Diner"
+        ,"Miami Metro"
+        ,"Midwest Gothic"
+        ,"Minimalism"
+        ,"Nuclear"
+        ,"Suburban"
+        ,"Vintage"],
+
+    "Fantasy & Mystical":
+        ["Alien"
+        ,"Dark Fantasy"
+        ,"Ethereal"
+        ,"Fairy Tale"
+        ,"Fantasy"
+        ,"Medieval Fantasy"
+        ,"Surrealism"],
+
+    "Futuristic & Tech":
+        ["Afrofuturism"
+        ,"Clockpunk"
+        ,"Cyberdelic"
+        ,"Cyberpunk"
+        ,"Futurism"
+        ,"Gadgetpunk"
+        ,"Icepunk"
+        ,"Retro-Futurism"
+        ,"Silkpunk"
+        ,"Spacecore"
+        ,"Steampunk"
+        ,"Transhumanism"
+        ,"Underwater"
+        ,"Utopiacore"
+        ,"Wavepunk"
+        ,"Woodpunk"],
+
+    "Miscellaneous & Niche":
+        ["Auroracore"
+        ,"Goblincore"
+        ,"Military"
+        ,"Monumentality"
+        ,"Mushroomcore"
+        ,"Nautical"
+        ,"New England Gothic"
+        ,"Paleocore"
+        ,"Pirate"
+        ,"Post-Apocalyptic"
+        ,"Prehistoricore"
+        ,"Sandalpunk"
+        ,"Seapunk"
+        ,"Stonecore"]
+}
+
+    
     
 AESTHETICS = {
 "earthly": [
