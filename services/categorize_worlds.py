@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project_name.settings")  # Update with your actual settings module
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")  # Update with your actual settings module
 
 import django
 django.setup()
