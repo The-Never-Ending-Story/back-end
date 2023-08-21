@@ -120,7 +120,7 @@ These instructions are only for the backend. To setup the frontend locally, foll
    ```
 2. Activate the virtual environment
    ```sh
-   hyperloom/bin/activate
+   source hyperloom/bin/activate
    ```
 3. Clone the repo inside the virtual environment directory
    ```sh
@@ -991,15 +991,20 @@ Vary: Accept
 
 ## Testing
 
-To run the Pytest test suite:
-```sh
-pytest
-```
+To run the Pytest test suite, follow the following steps:
 
-To open the Pytest coverage report:
-```sh
-open htmlcov/index.html
-```
+1. Activate your virtual environment
+2. Navigate to the application root directory where the `pytest.ini` file is
+3. Run:
+    ```sh
+    pytest
+    ```
+4. Open the Pytest coverage report with:
+   ```sh
+   open htmlcov/index.html
+   ```
+
+Coverage report:
 
 ![Pytest Coverage Report](images/test-coverage.png)
 
