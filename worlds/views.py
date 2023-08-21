@@ -15,6 +15,16 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.apps import apps
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import authenticate
+from users.serializers import UserSerializer
 
 @api_view(['GET', 'POST'])
 def world_list(request):
@@ -312,3 +322,33 @@ def webhook(request):
       print("No ref in data")
 
     return JsonResponse({'status': 'ok'}, status=200)
+
+@api_view(['POST'])
+def register(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    password_confirmation = request.data.get('password_confirmation')
+
+    if password != password_confirmation:
+        return Response({"detail": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.create_user(username=username, password=password)
+    except IntegrityError:
+        return Response({"detail": "A user with this username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = UserSerializer(user, many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key})
+    else:
+        return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
