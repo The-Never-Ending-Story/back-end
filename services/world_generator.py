@@ -71,7 +71,7 @@ def add_midj_images(world):
         while not landscape.get("success", False):
             landscape = imagine(
             {"model": "world", "id": world.id, "type": "landscape"},
-            thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 3:4"
+            thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 3:2"
             )
             if landscape.get("success") == False:
                 time.sleep(3)
