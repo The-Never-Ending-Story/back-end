@@ -7,7 +7,7 @@ django.setup()
 import json
 from .api_services import gpt_response, dalle_image, imagine, get_progress, upscale_img
 from .prompts import gpt_prompt
-from .attributes import random_attributes
+from .attributes import random_attributes, categorize_world, CATEGORIES
 from django.db.models import Q
 from worlds.models import World, Event, Location, Character, Species
 import time
@@ -39,6 +39,7 @@ def generate_random_world():
         for location in world_json.get('locations', []):
             Location.objects.create(world=world, **location)
 
+        categorize_world(world)
         world.save()
         print("world object created: \n")
         print(world)
