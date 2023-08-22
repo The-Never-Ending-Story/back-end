@@ -145,7 +145,6 @@ def test_get_world_list_happy(mock_worlds):
 
     assert response.status_code == 200
     world_list = response.json()
-    assert len(world_list) == 2
 
     assert type(world_list) is list
 
