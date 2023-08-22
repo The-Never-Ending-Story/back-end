@@ -18,7 +18,7 @@ def compress_thumbnails():
         img.thumbnail((200, 200))
 
         compressed_img_data = BytesIO()
-        img.save(compressed_img_data, format='JPEG', quality=95)  
+        img.save(compressed_img_data, format='PNG', quality=95)  
 
         world.thumbnail = compressed_img_data.getvalue()
         world.save()
