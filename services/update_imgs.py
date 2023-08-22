@@ -3,6 +3,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 from worlds.models import World
+import base64
 import re
 
 def compress_thumbnails():
@@ -23,8 +24,10 @@ def compress_thumbnails():
             if not pattern.search(thumbnail_url):
                 print(f"URL doesn't match the pattern: {thumbnail_url}")
                 continue
-
-            response = requests.get(thumbnail_url)
+            
+            # disguise our script as a regular browser to avoid 403 client forbidden
+            headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0"} 
+            response = requests.get(thumbnail_url, headers=headers)
             
             response.raise_for_status()  # raise exception for HTTP errors
             
@@ -36,6 +39,8 @@ def compress_thumbnails():
 
             compressed_img_data = BytesIO()
             img.save(compressed_img_data, format='PNG', quality=95)
+            base64_encoded = base64.b64encode(compressed_img_data.getvalue()).decode('utf-8')
+            world.img["thumbnail"] = base64_encoded
             
             world.img["thumbnail"] = compressed_img_data.getvalue()
             print(f"Compressed image for world {world.id}")
