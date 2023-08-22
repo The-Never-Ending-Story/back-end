@@ -18,7 +18,7 @@ def compress_thumbnail(world):
     chrome_options.add_argument("--no-sandbox")
     
     # Instantiate the driver inside the function
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
 
     try:
         print(f"---\nStarting world {world.id}")
