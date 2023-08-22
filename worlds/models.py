@@ -21,7 +21,7 @@ class World(models.Model):
     imgs = models.JSONField(default=dict)
     hero = models.TextField(default='')
     heros = models.JSONField(default=dict)
-    thumbnail = models.TextField(default='')
+    thumbnail = models.BinaryField(blank=True, null=True)
 
 
     @property
