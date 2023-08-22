@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO
 from worlds.models import World
 import base64
+import time
 import re
 
 def compress_thumbnail(world):
@@ -67,6 +68,7 @@ def compress_thumbnails():
 
     for world in worlds:
         compress_thumbnail(world)
+        time.sleep(1)
 
 compress_thumbnails()
 
