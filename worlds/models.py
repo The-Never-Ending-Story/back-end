@@ -15,10 +15,13 @@ class World(models.Model):
     description = models.TextField(default='')
     geoDynamics = models.JSONField(default=dict)
     magicTechnology = models.JSONField(default=dict)
+    lore = models.JSONField(default=list)
     imagine = models.TextField(default='')
     img = models.JSONField(default=dict)
     imgs = models.JSONField(default=dict)
-    lore = models.JSONField(default=list)
+    hero = models.TextField(default='')
+    heros = models.JSONField(default=dict)
+    thumbnail = models.BinaryField(blank=True, null=True)
 
 
     @property
