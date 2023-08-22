@@ -21,8 +21,8 @@ def world_list(request):
 
   if request.method == 'GET':
     worlds = World.objects.filter(discovered=True)
-    # filtered_worlds = [world for world in worlds if world.is_complete]
-    serializer = WorldSerializer(worlds, many=True)
+    filtered_worlds = [world for world in worlds if world.is_complete]
+    serializer = WorldSerializer(filtered_worlds, many=True)
     return Response(serializer.data)
   elif request.method == 'POST':
     serializer = WorldSerializer(data=request.data)
