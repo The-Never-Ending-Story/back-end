@@ -176,7 +176,7 @@ Prefix all endpoints with the deployed backend API domain: [https://hyperloom-d2
 
 API documentation is done using [Swagger](https://swagger.io/) (linked below), following the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification) from the [OpenAPI Initiative](https://www.openapis.org/). API responses return JSON.
 
-[Hyperloom API Documentation in Swagger](https://app.swaggerhub.com/apis-docs/brandenge/Hyperloom/1.0.0)
+[Hyperloom API Documentation in Swagger](https://app.swaggerhub.com/apis-docs/brandenge/Hyperloom/1.0.1)
 
 ## Testing
 
