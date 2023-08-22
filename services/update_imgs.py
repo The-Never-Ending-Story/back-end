@@ -77,13 +77,15 @@ def get_new_heros():
     for world in worlds:
       print(f'working on hero for world {world.id}...')
 
+      heros = world.imgs.get("heros")
+      
       thumbnail = world.imgs.get("thumbnails")
       if thumbnail:
           thumbnail = thumbnail[0]
 
       pattern = re.compile(r"\.png$") 
 
-      if thumbnail and pattern.search(thumbnail):
+      if thumbnail and pattern.search(thumbnail) and not heros:
 
         hero = {}
         while not hero.get("success", False):
