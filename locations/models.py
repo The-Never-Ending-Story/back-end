@@ -6,7 +6,7 @@ class Location(models.Model):
     climate = models.CharField(max_length=250)
     lore = models.TextField()
     imagine = models.TextField()
-    img = models.TextField(default='none')
+    img = models.TextField(default='')
     imgs = models.TextField(default=list)
     world = models.ForeignKey("worlds.World", on_delete=models.CASCADE)
 
