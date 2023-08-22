@@ -19,9 +19,6 @@ class World(models.Model):
     imagine = models.TextField(default='')
     img = models.JSONField(default=dict)
     imgs = models.JSONField(default=dict)
-    hero = models.TextField(default='')
-    heros = models.JSONField(default=dict)
-    thumbnail = models.BinaryField(blank=True, null=True)
 
 
     @property
