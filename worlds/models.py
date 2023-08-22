@@ -42,9 +42,8 @@ class World(models.Model):
         pattern = re.compile(r"\.png$")
 
         if isinstance(self.img, dict):
-            thumbnail_img = self.img.get("thumbnail", None)
             landscape_img = self.img.get("landscape", None)
-            if not (thumbnail_img and landscape_img and pattern.search(thumbnail_img) and pattern.search(landscape_img)):
+            if not (landscape_img and pattern.search(landscape_img)):
                 return False
         else:
             if not pattern.search(self.img):

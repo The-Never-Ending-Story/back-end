@@ -8,6 +8,8 @@ import time
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from .api_services import imagine
+from .world_generator import wait_for_image
 
 def compress_thumbnail(world):
     # Setup Chrome options
@@ -68,6 +70,36 @@ def compress_thumbnails():
     for world in worlds:
         compress_thumbnail(world)
 
-compress_thumbnails()
+
+def get_new_heros():
+    worlds = World.objects.all()
+
+    for world in worlds:
+      print(f'working on hero for world {world.id}...')
+
+      thumbnail = world.imgs["thumbnails"][0]
+      pattern = re.compile(r"\.png$") 
+
+      if thumbnail and pattern.search(thumbnail):
+
+        hero = {}
+        while not hero.get("success", False):
+            hero = imagine(
+            {"model": "world", "id": world.id, "type": "hero"},
+            thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 3:2"
+            )
+            if hero.get("success") == False:
+                time.sleep(3)
+
+        hero = wait_for_image(hero)
+        print(f"hero finished for world {world.id}")
+      
+      else: 
+          print("world is missing thumbnail")
+      
+
+get_new_heros()
+
+# compress_thumbnails()
 
 # update_all_images()
