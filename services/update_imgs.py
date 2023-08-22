@@ -28,7 +28,8 @@ def compress_thumbnail(world):
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
-            "Upgrade-Insecure-Requests": "1"
+            "Upgrade-Insecure-Requests": "1",
+            "Referer": "https://midjourney.com/"
         }
 
         cookies = {
@@ -39,6 +40,8 @@ def compress_thumbnail(world):
         }
 
         response = requests.get(thumbnail_url, headers=headers, cookies=cookies)
+
+        print(response.content)
         
         response.raise_for_status()  # raise exception for HTTP errors
         
