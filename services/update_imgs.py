@@ -1,13 +1,25 @@
 from .world_generator import update_all_images
-import requests
+import os
 from PIL import Image
 from io import BytesIO
 from worlds.models import World
 import base64
 import time
 import re
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def compress_thumbnail(world):
+    # Setup Chrome options
+    chrome_options = Options()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+    
+    # Instantiate the driver inside the function
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+
     try:
         print(f"---\nStarting world {world.id}")
         pattern = re.compile(r"\.png$") 
@@ -21,33 +33,17 @@ def compress_thumbnail(world):
         if not pattern.search(thumbnail_url):
             print(f"URL doesn't match the pattern: {thumbnail_url}")
         
-        # disguise our script as a regular browser to avoid 403 client forbidden
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Upgrade-Insecure-Requests": "1",
-            "Referer": "https://midjourney.com/"
-        }
-
-        cookies = {
-            "_ga": "GA1.1.1964539518.1677658582",
-            "cf_clearance": "BCp.e70szH7kJb5u6FdkBznCAktadbKiV_TwQZCDrxw-1689526124-0-250",
-            "_ga_Q0DQ5L7K0D": "GS1.1.1689526139.57.0.1689526142.0.0.0",
-            "__cf_bm": "3yk.VOewZS9O_oW.GdTlcORS.1xxItG3O0WxRIwkHZY-1692733255-0-AR/HOEsOxPYbvBelziq8xgZUN1nPyIcahHIGbrClE/ylGlYkG+5bvZvftawjtvangq2B7hSk/yWauvP+BX0M8tM="
-        }
-
-        response = requests.get(thumbnail_url, headers=headers, cookies=cookies)
-
-        print(response.content)
+        # Navigate to the URL using Selenium
+        driver.get(thumbnail_url)
         
-        response.raise_for_status()  # raise exception for HTTP errors
+        # Sleep to ensure page loads and any challenges are handled
+        time.sleep(5)
+        
+        # Capture the screenshot as the image
+        img_data = driver.get_screenshot_as_png()
         
         print(f"Successfully fetched image for world {world.id}")
-        
-        img_data = response.content
+
         img = Image.open(BytesIO(img_data))
         img.thumbnail((200, 200))
 
@@ -61,17 +57,16 @@ def compress_thumbnail(world):
         world.save()
         print(f"Saved world {world.id}")
 
-    except requests.RequestException as e:
-        print(f"Error fetching image for world {world.id} from URL {thumbnail_url}. Error: {e}")
     except Exception as e:
-        print(f"Unknown error for world {world.id}. Error: {e}")
+        print(f"Error for world {world.id} while accessing URL {thumbnail_url}. Error: {e}")
+    finally:
+        driver.quit()  # Ensure the driver is closed after each usage.
 
 def compress_thumbnails():
     worlds = World.objects.all()
 
     for world in worlds:
         compress_thumbnail(world)
-        time.sleep(1)
 
 compress_thumbnails()
 
