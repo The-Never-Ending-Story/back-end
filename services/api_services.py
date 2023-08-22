@@ -3,14 +3,15 @@ import json
 import openai
 from .settings import OPENAI_API_KEY
 from .settings import MIDJ_API_KEY
+import time
 
 
-def gpt_response(prompt):
+def gpt_response(prompt, model="gpt-4"):
     openai.api_key = OPENAI_API_KEY
     messages = [{"role": "system", "content": "You are an API endpoint. Please respond as a JSON field"},
                 {"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=model,
         messages=messages,
         temperature=1.0,
         max_tokens=3000,
@@ -47,16 +48,45 @@ def imagine(ref, prompt):
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    return response.text
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError:
+        print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
+        return None
 
-def upscale_img(id):
+
+def get_progress(msgid):
+    url = f'https://api.thenextleg.io/v2/message/{msgid}'
+
+    headers = {
+    'Authorization': f'Bearer {MIDJ_API_KEY}',
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    try:
+        return json.loads(response.text)
+    
+    except json.JSONDecodeError:
+        print(f"Error: Response could not be parsed as JSON. Response status code: {response.status_code}, response text: {response.text}")
+        return None
+    
+def upscale_img(id, attempt=1, max_attempts=3):
     url = f'https://api.thenextleg.io/upscale-img-url?buttonMessageId={id}&button=U1'
 
     headers = {
         'Authorization': f'Bearer {MIDJ_API_KEY}',
-        'Content-Type': 'application/json'
     }
 
     response = requests.request("GET", url, headers=headers)
+
+    if response.status_code == 400:
+        print(f"Error: {response.status_code}. Response: {response.text}")
+        if attempt < max_attempts:
+            print(f"Retrying in {attempt * 2} seconds...")
+            time.sleep(attempt * 2)
+            return upscale_img(id, attempt + 1, max_attempts)
+        else:
+            raise Exception(f'Failed to upscale image after {max_attempts} attempts.')
 
     return response.json()["url"]

@@ -7,6 +7,7 @@ class Location(models.Model):
     lore = models.TextField()
     imagine = models.TextField()
     img = models.TextField(default='')
+    imgs = models.TextField(default=list)
     world = models.ForeignKey("worlds.World", on_delete=models.CASCADE)
 
     def __str__(self):

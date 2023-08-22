@@ -20,8 +20,9 @@ from django.apps import apps
 def world_list(request):
 
   if request.method == 'GET':
-    worlds = World.objects.all()
-    serializer = WorldSerializer(worlds, many=True)
+    worlds = World.objects.filter(discovered=True)
+    filtered_worlds = [world for world in worlds if world.is_complete]
+    serializer = WorldSerializer(filtered_worlds, many=True)
     return Response(serializer.data)
   elif request.method == 'POST':
     serializer = WorldSerializer(data=request.data)
@@ -286,17 +287,28 @@ def discover_world(request):
 @require_POST
 def webhook(request):
     data = json.loads(request.body)
+    print(f"Received data: {data}")
     ref = data.get("ref")
-    temp = data.get("buttonMessageId")
 
     if ref:
-      Model = apps.get_model('worlds', ref["model"])
-      instance = Model.objects.get(pk=ref["id"])
-      if ref.get("type"):
-        instance.img[ref["type"]] = temp
+      print(f"Processing ref: {ref}")
+      if ref["model"] == "species":
+        Model = apps.get_model("species", "species")
       else:
-        instance.img = temp
+        Model = apps.get_model(ref["model"] + "s", ref["model"])
+
+      instance = Model.objects.get(pk=ref["id"])
+      image_urls = data.get("imageUrls")
+
+      if not isinstance(instance, World):
+        instance.imgs = image_urls  
+        instance.img = image_urls[0]
+      elif ref.get("type"):
+        instance.imgs[ref["type"] + "s"] = image_urls
+        instance.img[ref["type"]] = image_urls[0]
 
       instance.save()
+    else: 
+      print("No ref in data")
 
     return JsonResponse({'status': 'ok'}, status=200)

@@ -5,12 +5,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")
 django.setup()
 
 import json
-from .api_services import gpt_response, dalle_image, imagine, upscale_img
+from .api_services import gpt_response, dalle_image, imagine, get_progress, upscale_img
 from .prompts import gpt_prompt
-from .attributes import AESTHETICS, GEODYNAMICS
-import random
+from .attributes import random_attributes, categorize_world, CATEGORIES
+from django.db.models import Q
 from worlds.models import World, Event, Location, Character, Species
 import time
+import re
 
 
 def generate_random_world():
@@ -21,7 +22,6 @@ def generate_random_world():
 
     try:
         world_json = json.loads(world_response)
-        print(world_json)
 
         related_fields = ['species', 'characters', 'events', 'locations']
         world_info = {k: v for k, v in world_json.items() if k not in related_fields}
@@ -39,7 +39,10 @@ def generate_random_world():
         for location in world_json.get('locations', []):
             Location.objects.create(world=world, **location)
 
+        categorize_world(world)
         world.save()
+        print("world object created: \n")
+        print(world)
         add_midj_images(world)
         return world
 
@@ -50,54 +53,409 @@ def generate_random_world():
         """
         return error
     
+def add_midj_images(world):
+    print(f'working on landscapes for world {world.id}...')
 
-def random_attributes():
-    earthly = random.choices(["earthly", "otherworldly"], weights=[0.42, 0.58], k=1)[0]
-    return {
-        "earthly": earthly_bool(earthly),
-        "genres": aesthetics_sample(earthly),
-        "geoDynamics": {
-            "size": size_sample(earthly),
-            "shape": shape_sample(earthly),
-            "climate": climate_sample(earthly),
-            "landscapes": landscapes_sample(earthly)
-        },
-        "magicTechnology": {
-            "magicLvl": random.randint(0,10),
-            "techLvl": random.randint(0,10),
-        }
-    }
+    thumbnail, landscape = {}, {}
+    while not thumbnail.get("success", False):
+        thumbnail = imagine(
+            {"model": "world", "id": world.id, "type": "thumbnail"},
+            ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+        )
+        if thumbnail.get("success") == False:
+            time.sleep(3)
 
+    thumbnail = wait_for_image(thumbnail)
+    
+    if not (thumbnail == "none" or thumbnail == "incomplete"):
+        thumbnail = thumbnail["imageUrls"][0]
+        while not landscape.get("success", False):
+            landscape = imagine(
+            {"model": "world", "id": world.id, "type": "landscape"},
+            thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 3:2"
+            )
+            if landscape.get("success") == False:
+                time.sleep(3)
 
+        landscape = wait_for_image(landscape)
+    else:
+        return 'No thumbnail found'
 
-def earthly_bool(earthly):
-    return True if earthly == "earthly" else False
+    if not (landscape == "none" or landscape == "incomplete"):
+        landscape = landscape["imageUrls"][0]
 
+    locations = world.locations.all()
+    for i, location in enumerate(locations):
+        print(f'working on {i+1}/{len(locations)} locations for {world.name}, world {world.id}')
+   
+        response = {}
+        while not response.get("success", False):
+            response = imagine(
+                {"model": "location", "id": location.id},
+                thumbnail + " " + landscape + " " +
+                ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
+            )
+            if response.get("success") == False:
+                time.sleep(3)
 
-def aesthetics_sample(earthly):
-    return random.sample(AESTHETICS[earthly], random.randint(1,3))
+        response = wait_for_image(response) 
 
+    species_list = world.species.all()
+    for i, speciez in enumerate(species_list):
+        print(f'working on {i + 1}/{len(species_list)} species for {world.name}, world {world.id}')
 
-def size_sample(earthly):
-    return random.sample(GEODYNAMICS["size"][earthly], 1)[0]
+        response = {}
+        while not response.get("success", False):
+            response = imagine(
+                    {"model": "species", "id": speciez.id},
+                    thumbnail + " " + landscape + " " +
+                    ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
+                )
+            if response.get("success") == False:
+                time.sleep(3)
 
+        response = wait_for_image(response)
 
-def shape_sample(earthly):
-    return random.sample(GEODYNAMICS["shape"][earthly], 1)[0]
+    chars = world.characters.all()
 
+    for i, char in enumerate(chars):
+        print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
 
-def climate_sample(earthly):
-    return random.sample(GEODYNAMICS["climate"][earthly], 1)[0]
+        try:
+            char_species = world.species.get(name=char.species)
+        except Species.DoesNotExist:
+                try:
+                    char_species = world.species.get(name=char.species[:-1])
+                except Species.DoesNotExist:
+                    char_species = None
+
+        if not char_species:
+            char_species = world.species.order_by('?').first() 
+        
+        species_url = char_species.img if char_species else ''
+        
+        first_location = world.locations.order_by('?').first()
+        location_url = first_location.img if first_location else ''
+
+        response = {}
+        while not response.get("success", False):
+            response = imagine({"model": "character", "id": char.id}, 
+                location_url + " " + species_url + " " +
+                ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
+            if response.get("success") == False:
+                time.sleep(3) 
+        
+        response = wait_for_image(response)
+
+    events = world.events.all()
+
+    for i, event in enumerate(events):
+        print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
+
+        try:
+            event_location = world.locations.get(name=event.location)
+        except Location.DoesNotExist:
+            event_location = None
+
+        response = {}
+        location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+
+        while not response.get("success", False):
+            response = imagine({"model": "event", "id": event.id}, 
+                location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+            if response.get("success") == False:
+                time.sleep(3)
+
+        response = wait_for_image(response)
+
+    print('ding! world finished. wow!')
     
 
-def landscapes_sample(earthly):
-    if earthly == "earthly":
-        return random.sample(GEODYNAMICS["landscapes"]["earthly"], random.randint(2,3))
+def update_midj_images(world):
+    print(f'working on landscapes for world {world.id}...')
+    
+    world_img = world.img
+    world_imgs = world.imgs if isinstance(world.imgs, dict) else {}
+
+    thumbnail = world_img.get("thumbnail")
+    landscape = world_img.get("landscape")
+
+    if thumbnail is not None and isinstance(thumbnail, str) and thumbnail.startswith("https"):
+        pattern = re.compile(r"/0_\d\.png$")
+        if "thumbnails" not in world_imgs or not pattern.search(world_imgs["thumbnails"][0]) and pattern.search(thumbnail):
+            base_url = re.sub(r"/0_\d\.png$", "", thumbnail) 
+            world_imgs["thumbnails"] = [f"{base_url}/0_{i}.png" for i in range(4)]
+
+    elif thumbnail is not None and isinstance(thumbnail, str) and not thumbnail=="none":
+        try: 
+            thumbnail = upscale_img(thumbnail)
+            if isinstance(thumbnail, str) and thumbnail.startswith('https'):
+                world.img["thumbnail"] = thumbnail
+                base_url = thumbnail[:-7]
+                world_imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+        except: 
+            thumbnail = None
+
+    elif thumbnail is None or not isinstance(thumbnail, str) or thumbnail == "none":
+        thumbnail = {}
+        while not thumbnail.get("success", False):
+            thumbnail = imagine(
+                {"model": "world", "id": world.id, "type": "thumbnail"},
+                ' '.join(world.genres) + " landscape view of this world: " + world.imagine
+            )
+            if thumbnail.get("success") == False:
+                time.sleep(3)
+
+        thumbnail = wait_for_image(thumbnail)
+        if not (thumbnail == "none" or thumbnail == "incomplete"):
+            world_imgs["thumbnails"] = thumbnail["imageUrls"]
+            world_img["thumbnail"] = thumbnail = thumbnail["imageUrls"][0]
+        else:
+            thumbnail = world_img["thumbnail"] = "none"
+            world_imgs["thumbnails"] = []
+    else: 
+        thumbnail = world_img["thumbnail"] = "none"
+
+
+    if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
+        pattern = re.compile(r"/0_\d\.png$")
+        if "landscapes" not in world_imgs or not pattern.search(world_imgs["landscapes"][0]) and pattern.search(landscape):
+            base_url = re.sub(r"/0_\d\.png$", "", landscape) 
+            world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
+    
+    elif landscape is not None and isinstance(landscape, str) and not landscape=="none":
+        try: 
+            landscape = upscale_img(landscape)
+            if isinstance(landscape, str) and landscape.startswith('https'):
+                world_img["landscape"] = landscape
+                base_url = landscape[:-7]
+                world_imgs["landscapes"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+        except: 
+            landscape = None
+
+    elif landscape is None or landscape == "none" or not isinstance(landscape, str):
+        landscape = {}
+        while not landscape.get("success", False):
+            landscape = imagine(
+                {"model": "world", "id": world.id, "type": "landscape"},
+                thumbnail + " " + ' '.join(world.genres) + " " + world.imagine + " --iw .75 --ar 9:3"
+            )
+            if landscape.get("success") == False:
+                time.sleep(3)
+
+        landscape = wait_for_image(landscape)
+        if isinstance(landscape, dict):
+            world_imgs["landscapes"] = landscape["imageUrls"]
+            world_img["landscape"] = landscape = landscape["imageUrls"][0]
+        else:
+            world_img["landscape"], world_imgs["landscapes"] = "none", []
+            
     else:
-        landscapes = []
-        for _ in range(random.randint(2,3)):
-            landscapes.append(random.sample(GEODYNAMICS["landscapes"][earthly], 1)[0] + " " + random.sample(GEODYNAMICS["landscapes"]["earthly"], 1)[0])
-        return landscapes
+        landscape = world_img["landscape"] = "none"
+
+    world.imgs = world_imgs
+    world.save()
+      
+    locations = world.locations.all()
+    locations_responses = []
+    for i, location in enumerate(locations):
+        print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
+
+        if isinstance(location.img, str) and location.imgs and not location.imgs[0].endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not location.imgs or not pattern.search(location.imgs[0]) and pattern.search(location.img):
+                base_url = re.sub(r"/0_\d\.png$", "", location.img) 
+                world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
+
+
+        if isinstance(location.img, str) and not (location.img == "none" or location.img == ''):
+            try:
+                location.img = upscale_img(location.img)
+                base_url = img[:-7]
+                location.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+            except:
+                location.img = "none"
+
+        else:
+            thumbnail = "none" if thumbnail is None else thumbnail
+            landscape = "none" if landscape is None else landscape
+            print (thumbnail + landscape)
+            
+            response = {}
+            while not response.get("success", False):
+                response = imagine(
+                    {"model": "location", "id": location.id},
+                    thumbnail + " " + landscape + " " +
+                    ' '.join(world.genres) + " " + location.imagine + " --iw .42 --ar 3:4"
+                )
+                if response.get("success", False):
+                    time.sleep(2)
+            locations_responses.append(response)
+    
+    for i in range(len(locations_responses)):
+        locations_responses[i] = wait_for_image(locations_responses[i])
+            
+    species_list = world.species.all()
+    species_responses = []
+    for i, speciez in enumerate(species_list):
+        print(f'working on {i + 1}/{len(species_list)} species for {world.name}, world {world.id}')
+
+        if isinstance(speciez.img, str) and speciez.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not speciez.imgs or not pattern.search(speciez.imgs[0]) and pattern.search(speciez.img):
+                base_url = re.sub(r"/0_\d\.png$", "", speciez.img) 
+                speciez.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
+
+        elif isinstance(speciez.img, str) and not (speciez.img == "none" or speciez.img == ''):
+          try:
+              speciez.img = upscale_img(speciez.img)
+              base_url = img[:-7]
+              speciez.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+          except:
+              speciez.img = "none"
+      
+        else:
+            thumbnail = '' if thumbnail is None else thumbnail
+            landscape = '' if landscape is None else landscape
+            print (thumbnail + landscape)
+        
+            response = {}
+            while not response.get("success", False):
+                response = imagine(
+                      {"model": "species", "id": speciez.id},
+                      thumbnail + " " + landscape + " " +
+                      ' '.join(world.genres) + " " + speciez.imagine + " --iw .55 --ar 3:4"
+                  )
+                if response.get("success", False):
+                    time.sleep(2)
+            
+            species_responses.append(response)
+
+    for i in range(len(species_responses)):
+        species_responses[i] = wait_for_image(species_responses[i])
+
+    chars = world.characters.all()
+    char_responses = []
+
+    for i, char in enumerate(chars):
+        print(f'working on {i + 1}/{len(chars)} characters for {world.name}, world {world.id}')
+
+        
+        if isinstance(char.img, str) and char.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not char.imgs or not pattern.search(char.imgs[0]) and pattern.search(char.img):
+                base_url = re.sub(r"/0_\d\.png$", "", char.img) 
+                char.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
+  
+        
+        if isinstance(char.img, str) and not (char.img == "none" or char.img == ''):
+          try:
+              img = char.img = upscale_img(char.img)
+              base_url = img[:-7]
+              char.imgs = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+          except:
+              char.img = "none"
+              char.imgs = []
+        
+        else:
+            try:
+                char_species = world.species.get(name=char.species)
+            except Species.DoesNotExist:
+                  try:
+                      char_species = world.species.get(name=char.species[:-1])
+                  except Species.DoesNotExist:
+                      char_species = None
+
+            if not char_species:
+              char_species = world.species.order_by('?').first() 
+            
+            species_url = char_species.img if char_species else ''
+            
+            first_location = world.locations.order_by('?').first()
+            location_url = first_location.img if first_location else ''
+
+            response = {}
+            while not response.get("success", False):
+                response = imagine({"model": "character", "id": char.id}, 
+                    location_url + " " + species_url + " " +
+                    ' '.join(world.genres) + " " + char.imagine + " --iw .88 --ar 3:4")
+                if response.get("success", False):
+                  time.sleep(2) 
+
+            char_responses.append(response)
+
+            if i == len(chars) - 1:
+                for response in char_responses:
+                    wait_for_image(response)
+
+    events = world.events.all()
+
+    for i, event in enumerate(events):
+        print(f'working on {i + 1}/{len(events)} incomplete events for {world.name}, world {world.id}')
+        
+        if isinstance(event.img, str) and event.img.endswith('.png'):
+            pattern = re.compile(r"/0_\d\.png$")
+            if not event.imgs or not pattern.search(event.imgs[0]) and pattern.search(event.img):
+                base_url = re.sub(r"/0_\d\.png$", "", event.img) 
+                event.imgs = [f"{base_url}/0_{i}.png" for i in range(4)]
+
+        elif isinstance(event.img, str) and not (event.img == "none" or event.img == ''):
+          try:
+              img = event.img = upscale_img(event.img)
+              base_url = img[:-7]
+              event.imgs["thumbnails"] = [base_url + "0_0.png", base_url + "0_1.png", base_url + "0_2.png", base_url + "0_3.png"]
+          except:
+              event.img = "none"
+
+        else:
+            event_location = None
+
+            try:
+                event_location = world.locations.get(name=event.location)
+            except Location.DoesNotExist:
+                event_location = None
+
+            response = {}
+            location_url = event_location.img if event_location else world.locations.order_by('?').first().img
+
+            while not response.get("success", False):
+                response = imagine({"model": "event", "id": event.id}, 
+                    location_url + " " + ' '.join(world.genres) + " " + event.imagine + " --iw .42 --ar 3:4")
+                time.sleep(2)
+            if i == len(events) - 1:
+                wait_for_image(response)
+
+    print('ding! world finished. wow!')
+
+
+
+def wait_for_image(msg):
+    if "messageId" in msg:
+        try:
+            update = get_progress(msg["messageId"])
+        except:
+            return 'none'
+
+        if isinstance(update["progress"], str) and update["progress"] != 'incomplete':
+            update["progress"] = int(update["progress"])
+            
+        while isinstance(update["progress"], int) and update["progress"] == 0:
+            print("job started, brb...")
+            time.sleep(42)
+            update = get_progress(msg["messageId"])
+
+
+        while not update["progress"] == 100:
+            print(f'hol\' up, job cookin\'.. {update["progress"]}%')
+            time.sleep(4)
+            update = get_progress(msg["messageId"])
+
+            if update["progress"] == "incomplete":
+                print('woops! job hanging, moving on..')
+                return 'incomplete'
+
+        print("ding! job finished.")
+        return update["response"]
     
 
 def add_dalle_images(world):
@@ -114,152 +472,21 @@ def add_dalle_images(world):
         return world
 
 
-def add_midj_images(world):
-        response = imagine({"model": "world", "id": world.id, "type": "thumbnail"}, ' '.join(world.genres) + " " + world.description)
-        print(response)
-        wait_for_image(world, "thumbnail")
-        world.img["thumbnail"] = upscale_img(world.img["thumbnail"])
-        world.save()
-        
-        imagine({"model": "world", "id": world.id, "type": "landscape"}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + world.imagine + " --ar 9:3")
-        wait_for_image(world, "landscape")
-        world.img["landscape"] = upscale_img(world.img["landscape"])
-        world.save()
-
-        for location in world.locations.all():
-            imagine({"model": "location", "id": location.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + location.imagine + " --ar 3:4")
-            wait_for_image(location)
-            location.img = upscale_img(location.img)
-            location.save()
-            
-        for species in world.species.all():
-            imagine({"model": "species", "id": species.id}, world.img["thumbnail"] + " " + ' '.join(world.genres) + " " + species.imagine + " --ar 3:4")
-            wait_for_image(species.img)
-            species.img = upscale_img(species.img)
-            species.save()
-
-            for char in world.characters.filter(species=species):
-                imagine({"model": "character", "id": char.id}, world.img["thumbnail"] + " " + species.img + " " + char.imagine + " --ar 3:4")
-                wait_for_image(char.img)
-                char.img = upscale_img(char.img)
-                char.save()
-
-        for event in world.events.all():
-            imagine({"model": "event", "id": event.id}, world.img["thumbnail"] + " " + event.imagine + " --ar 3:4")
-            wait_for_image(event.img)
-            event.save()
-        
-        return world
-
-def wait_for_image(instance, type=False):
-    time.sleep(30)
-    if type:
-        while not instance.img.get(type):
-            instance.refresh_from_db()
-            print(instance.img)
-            print("waiting...")
-            time.sleep(5)
-    else:
-        while not instance.img:
-            instance.refresh_from_db()
-            print("waiting...")
-            time.sleep(5)
+def update_all_images():
+    worlds = World.objects.all()
+    for i, world in enumerate(worlds):
+        print(f'Working on {world.name}, world {world.id}, {i + 1} / {len(worlds)} worlds')
+        add_midj_images(world)
+    print("holy cow, that's all folks!!")
 
 
-
-
-def generate_this_world():
-    world_json = {
-  "name": "Abyssia",
-  "earthly": true,
-  "genres": ["Pre-Raphaelite", "Art Nouveau", "Forestpunk"],
-  "img": {
-    "landscape": "https://cdn.discordapp.com/attachments/1128814452012220536/1129471815505424465/hyperloom_Abyssia_is_a_world_tucked_away_within_its_aquamarine__3c94e2c0-790f-4226-881b-1e06dbbc9a5e.png",
-    "thumbnail": "https://cdn.discordapp.com/attachments/1128814452012220536/1129470452780245012/hyperloom_Stepping_ashore_you_find_yourself_encased_in_perpetua_513849bf-0aa4-4b0d-9078-61129fcae8b3.png"
-  },
-  "geoDynamics": {
-    "size": "Dwarf",
-    "shape": "Planet",
-    "climate": "oceanic",
-    "landscapes": ["plateaus", "taiga"]
-  },
-  "magicTechnology": {
-    "magicLvl": 6,
-    "magic": {
-      "Chaos": "Alteration of reality",
-      "Nature": "Manipulation of plants and animals",
-      "Element": "Control over fire, water, earth and air"
-    }, 
-    "techLvl": 8,
-    "technology": {
-      "BioTech": "Genetic modifications",
-      "Inventions": "Steam-powered machines",
-      "InfoTech": "Centralized information network"
-    }
-  },
-  "blurb": "Sea-lapped enigma draped in verdure and shrouded in mystery.",
-  "description": "Abyssia is a world tucked away within its aquamarine oceanic veil, bejeweled with islands of varying sizes and forestry. The gaps between these isles allow space for the expansive teeming marine life, keeping the Abyssian archipelago alive. The exquisite landscapes are concoctions of towering plateaus, silhouetted against twilight, and dense taiga forests, a testament to the potent magic that enhances the verdant vibrancy. The age of steam powers the Abyssian's inventions while they still invoke nature, element, and chaos magics.",
-  "imagine": "Stepping ashore, you find yourself encased in perpetual dawn. Majestic plateau peaks are bathed in orange light, their bare rock faces contrasting with rich verdant taiga at their base. Twisted boughs of ancient trees disappear into an emerald canopy pierced by whimsical shafts of sunlight, while curious steam contraptions whirr away on their predestined tasks. As dusk sets, you see the sparkling ocean stretch far beyond, while thousands of bioluminescent creatures awaken, setting the world aglow.",
-  "species": [{
-    "alignment": "Neutral Good",
-    "politics": "Matriarchal society",
-    "name": "Abythonians",
-    "lore": "Being amphibious in nature, Abythonians harmonize their life between land and sea. They are adept in harnessing both magic and technology to enhance their survival. Their society is led by the Matriarch, an individual known for her superior knowledge of both the land and marine ecosystems.",
-    "imagine": "In the interplay of light, amidst a tangle of branches, figures move with fluid grace. Their elongated limbs, covered in scales glistening in various hues, prove to be as functional in land as they are in water. A unique bioluminescent mark, glowing at the center of their forehead, seems to pulsate with every beat of their heart. Walking by you, they interact with a curious steam contraption that nests amidst the trees, their eyes reflecting unspoken wisdom.",
-    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129483134682017912/hyperloom_Being_amphibious_in_nature_Abythonians_harmonize_thei_0a6ebdbe-0ecd-437a-84f4-d79ef759df6a.png" }],
-  "locations": [{
-    "type": "City",
-    "climate": "Temperate rainforest",
-    "name": "Arbores Altum",
-    "lore": "Arbores Altum, the city built amidst the treetops, demonstrates a remarkable integration of nature. Houses wrapped in flora rely on steam-powered lifts for mobility. It's a pre-Raphaelite vision infused with the animation of forestpunk.",
-    "imagine": "Gaze upwards at a city thriving amidst the canopy. Platforms wrapped in tapestry of foliage, steam powered lifts bustling with activity, weaving their way between the branches. Soft twinkle of bioluminescent plants light the city with a dreamy glow, reflecting off the waterproofed canvases stretched over their fortifications.",
-    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129483528845934682/hyperloom_Gaze_upwards_at_a_city_thriving_amidst_the_canopy._Pl_863e563d-6a6f-46e7-9400-0e58e300adaa.png" }],
-  "characters": [{
-    "species": "Abythonians",
-    "age": 127,
-    "alignment": "Neutral Good",
-    "name": "Nymphaea",
-    "lore": "Nymphaea, the current Matriarch of the Abythonians, is known for her serene wisdom, potent magic skills, and deep connection with nature. She played a pivotal role in the creation of the Abyssian Information Network.",
-    "imagine": "Lingering gaze of a serene figure, enchanting everyone around her. Her iridescent scales glow dimly, a symbol of her mature age. Adroit fingers engage in a magical dance, drawing energy from the atmosphere, while before her a whirl of steam forms intricate patterns, symbolizing her contribution to the fusion of magic and technology.",
-    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129484262329028638/hyperloom_Lingering_gaze_of_a_serene_figure_enchanting_everyone_8215101d-2efd-4ef9-a45d-80022f6e5c8b.png" }],
-  "events": [{
-    "type": "Peace Treaty",
-    "age": "Third Age",
-    "time": "TA 37",
-    "name": "The Pact of Coexistence",
-    "lore": "This pact marked the end of the wars amongst the Abyssian sub-species. The treaty emphasized on mutual survival, marking the birth of the Union of Abyssia.",
-    "imagine": "Picture the twilight-soaked plateau, where two figures stand against each other. Their palms glow with magical symbols, indicating their binding oath. Around them gather their kin, awestruck as the spectacle of harmony unfolds before the setting sun.",
-    "img": "https://cdn.discordapp.com/attachments/1128814452012220536/1129484637786341427/hyperloom_Picture_the_twilight-soaked_plateau_where_two_figures_58fa4aa5-8cc3-4989-ac28-c84bde24b488.png" }],
-    "lore": [
-    "Era of Emergence: The first epoch marks the rise of the Abythonians. Fierce competition for resources led to the discovery of magic and technology, intertwining the society into a web of politics and power struggles. The Abythonians soon learned to adapt and carve out territories within their confines.",
+def generate_new_worlds(n=13):
+    new_worlds = []
+    for _ in range(n):
+        try:
+            new_world = generate_random_world()
+            new_worlds.append(new_world)
+        except Exception as e:
+            print(f"Error generating new world: {e}")
     
-    "Age of Enlightenment: During the second epoch, the Abythonians embraced their magic-technology blend. This age saw the construction of the city Arbores Altum and the blossoming of knowledge, with the invention of the Abyssian Information Network. Under Nymphaea's leadership, the Abythonians explored the depths of their abilities, found balance with the environment, and sparked rapid progress and growth.",
-    
-    "The Union Age: Brought about by the Pact of Coexistence, the third epoque marked the end of internal conflict between the Abythonians. The epoch ushered in an era of peace, harmony, and shared survival amongst the Abyssian sub-species."
-  ]
-}
-
-    related_fields = ['species', 'characters', 'events', 'locations']
-    world_info = {k: v for k, v in world_json.items() if k not in related_fields}
-    world = World.objects.create(**world_info)
-
-    for species in world_json.get('species', []):
-        Species.objects.create(world=world, **species)
-
-    for char in world_json.get('characters', []):
-        Character.objects.create(world=world, **char)
-
-    for event in world_json.get('events', []):
-        Event.objects.create(world=world, **event)
-
-    for location in world_json.get('locations', []):
-        Location.objects.create(world=world, **location)
-
-        return world
-
-    
-world = generate_random_world()
-print(world)
-
-# img = midjourney_image("a wormhole to another dimension")
-# print(img)
+    return new_worlds
