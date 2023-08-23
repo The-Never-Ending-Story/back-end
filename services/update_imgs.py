@@ -21,13 +21,14 @@ def find_coordinates():
     driver = webdriver.Chrome(options=chrome_options)
     
     worlds = World.objects.all()
+    filtered_worlds = [world for world in worlds if world.is_complete]
 
     x_guesses = range(10, 50, 5)  
     y_guesses = range(250, 350, 10)  
 
     xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
 
-    for idx, world in enumerate(worlds):
+    for idx, world in enumerate(filtered_worlds):
         thumbnail_url = world.imgs.get("thumbnails")
         if thumbnail_url:
             thumbnail_url = thumbnail_url[0]
