@@ -7,7 +7,7 @@ class Event(models.Model):
     time = models.CharField(max_length=250, default='')
     lore = models.TextField(default='')
     imagine = models.TextField(default='')
-    img = models.TextField(default='')
+    img = models.TextField(default='none')
     imgs = models.JSONField(default=list)
     world = models.ForeignKey("worlds.World", on_delete=models.CASCADE)
     location = models.CharField(max_length=250, default='')
