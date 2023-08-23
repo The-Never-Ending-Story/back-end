@@ -1,5 +1,11 @@
 import random
 from worlds.models import World
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "worlds.settings")
+django.setup()
+
 
 GENRE_MAPPING = {
     'Historical & Cultural': [
