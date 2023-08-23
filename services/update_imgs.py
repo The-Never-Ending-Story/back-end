@@ -36,15 +36,16 @@ def find_coordinates():
 
         pattern = re.compile(r"\.png$") 
         if pattern.search(thumbnail_url):
-          print(f"Thumbnail url: {thumbnail_url}")
+          print(f"Expected url: {thumbnail_url}")
           expected_url = thumbnail_url
           driver.get(thumbnail_url)
 
-          time.sleep(3)
+          time.sleep(5)
+
+          print(f"Arrived at: {driver.current_url}")
 
           # Check if we're on the CAPTCHA page
           if driver.current_url != expected_url:
-              print(f"arrived at {driver.current_url}")
               x, y = xy_guesses[idx % len(xy_guesses)]
               try:
                   driver.execute_script(f"document.elementFromPoint({x}, {y}).click();")
