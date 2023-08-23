@@ -11,11 +11,12 @@ from selenium.webdriver.chrome.options import Options
 from .api_services import imagine
 from .world_generator import wait_for_image
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 
 def is_png_image_displayed(driver):
     try:
         # Find all images on the page
-        images = driver.find_elements_by_tag_name('img')
+        images = driver.find_elements(By.TAG_NAME, "img")
         # If there's only one image and its src ends with '.png', return True
         return len(images) == 1 and images[0].get_attribute('src').endswith('.png')
     except Exception as e:
