@@ -167,9 +167,20 @@ def get_new_heros():
       
       else: 
           print("world is missing thumbnail")
-      
 
-find_coordinates()
+def revert_thumbnails():
+    worlds = World.objects.all()
+    filtered_worlds = [world for world in worlds if world.is_complete]
+    for world in filtered_worlds:
+        try:
+            world.img["thumbnail"] = world.imgs["thumbnails"][0]
+        except: 
+            continue
+
+
+revert_thumbnails()
+
+# find_coordinates()
 
 # get_new_heros()
 
