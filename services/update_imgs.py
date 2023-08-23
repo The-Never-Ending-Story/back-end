@@ -39,7 +39,7 @@ def find_coordinates():
     x_guesses = range(0, 21, 1) 
     y_guesses = range(150, 251, 5)
 
-    xy_guesses = [(x, y) for x in x_guesses for y in y_guesses)]
+    xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
 
 
     for idx, world in enumerate(filtered_worlds):
