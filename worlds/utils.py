@@ -74,7 +74,7 @@ def assign_categories_to_worlds():
     worlds = World.objects.all()
 
     for world in worlds:
-        world.categories = [assign_category_to_world(world)]
+        world.category = [assign_category_to_world(world)]
         world.save()
 
 assign_categories_to_worlds()
