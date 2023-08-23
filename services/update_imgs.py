@@ -28,25 +28,30 @@ def find_coordinates():
     xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
 
     for idx, world in enumerate(worlds):
-        thumbnail_url = world.img.get("thumbnail")
-        expected_url = thumbnail_url
-        driver.get(thumbnail_url)
+        thumbnail_url = world.imgs.get("thumbnails")
+        if thumbnail_url:
+            thumbnail_url = thumbnail_url[0]
 
-        time.sleep(3)
+        pattern = re.compile(r"\.png$") 
+        if pattern.search(thumbnail_url):
+          expected_url = thumbnail_url
+          driver.get(thumbnail_url)
 
-        # Check if we're on the CAPTCHA page
-        if driver.current_url != expected_url:
-            x, y = xy_guesses[idx % len(xy_guesses)]
-            try:
-                driver.execute_script(f"document.elementFromPoint({x}, {y}).click();")
-                time.sleep(3)  
+          time.sleep(3)
 
-                if driver.current_url == expected_url:
-                    print(f"Found valid coordinates: X={x}, Y={y} for world {world.id}")
-                    break
+          # Check if we're on the CAPTCHA page
+          if driver.current_url != expected_url:
+              x, y = xy_guesses[idx % len(xy_guesses)]
+              try:
+                  driver.execute_script(f"document.elementFromPoint({x}, {y}).click();")
+                  time.sleep(3)  
 
-            except Exception as e:
-                print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
+                  if driver.current_url == expected_url:
+                      print(f"Found valid coordinates: X={x}, Y={y} for world {world.id}")
+                      break
+
+              except Exception as e:
+                  print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
 
     driver.quit()
 
