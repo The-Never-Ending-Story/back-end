@@ -29,6 +29,7 @@ def find_coordinates():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("window-size=1920x1080")  # Explicitly set window size
 
     driver = webdriver.Chrome(options=chrome_options)
     
@@ -68,7 +69,6 @@ def find_coordinates():
                     print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
 
     driver.quit()
-
 
 
 def compress_thumbnail(world):
