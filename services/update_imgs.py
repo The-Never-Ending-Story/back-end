@@ -170,8 +170,7 @@ def get_new_heros():
 
 def revert_thumbnails():
     worlds = World.objects.all()
-    filtered_worlds = [world for world in worlds if world.is_complete]
-    for world in filtered_worlds:
+    for world in worlds:
         try:
             world.img["thumbnail"] = world.imgs["thumbnails"][0]
         except: 
