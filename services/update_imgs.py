@@ -37,9 +37,27 @@ def find_coordinates():
     filtered_worlds = [world for world in worlds if world.is_complete]
 
     x_guesses = range(15, 30, 1)  
-    y_guesses = range(150, 225, 5) 
+    y_ranges = {
+      15: range(150, 175, 5),
+      16: range(150, 180, 5),
+      17: range(150, 185, 5),
+      18: range(150, 190, 5),
+      19: range(150, 195, 5),
+      20: range(150, 200, 5),
+      21: range(150, 205, 5),
+      22: range(150, 210, 5),
+      23: range(150, 215, 5),
+      24: range(150, 220, 5),
+      25: range(150, 225, 5),
+      26: range(150, 230, 5),
+      27: range(150, 235, 5),
+      28: range(150, 240, 5),
+      29: range(150, 245, 5),
+      30: range(150, 250, 5)
+    } 
 
-    xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
+    xy_guesses = [(x, y) for x in x_guesses for y in y_ranges.get(x, [])]
+
 
     for idx, world in enumerate(filtered_worlds):
         print(f"trying world {world.id}")
