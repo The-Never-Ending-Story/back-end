@@ -173,6 +173,7 @@ def revert_thumbnails():
     for world in worlds:
         try:
             world.img["thumbnail"] = world.imgs["thumbnails"][0]
+            world.save()
         except: 
             continue
 
