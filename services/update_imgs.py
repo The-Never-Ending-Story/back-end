@@ -38,22 +38,22 @@ def find_coordinates():
 
     x_guesses = range(15, 30, 1)  
     y_ranges = {
-      15: range(150, 175, 5),
-      16: range(150, 180, 5),
-      17: range(150, 185, 5),
-      18: range(150, 190, 5),
-      19: range(150, 195, 5),
-      20: range(150, 200, 5),
-      21: range(150, 205, 5),
-      22: range(150, 210, 5),
-      23: range(150, 215, 5),
-      24: range(150, 220, 5),
-      25: range(150, 225, 5),
-      26: range(150, 230, 5),
-      27: range(150, 235, 5),
-      28: range(150, 240, 5),
-      29: range(150, 245, 5),
-      30: range(150, 250, 5)
+        15: range(150, 175, 5),
+        16: range(150, 160, 5),  # Adjusting for out of bounds at Y=155
+        17: range(150, 165, 5),
+        18: range(150, 170, 5),
+        19: range(150, 175, 5),
+        20: range(150, 180, 5),
+        21: range(150, 185, 5),
+        22: range(150, 190, 5),
+        23: range(150, 195, 5),
+        24: range(150, 200, 5),
+        25: range(150, 205, 5),
+        26: range(150, 210, 5),
+        27: range(150, 215, 5),
+        28: range(150, 220, 5),
+        29: range(150, 225, 5),
+        30: range(150, 230, 5)
     } 
 
     xy_guesses = [(x, y) for x in x_guesses for y in y_ranges.get(x, [])]
