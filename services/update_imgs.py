@@ -16,7 +16,6 @@ def is_png_image_displayed(driver):
     try:
         # Find all images on the page
         images = driver.find_elements_by_tag_name('img')
-        
         # If there's only one image and its src ends with '.png', return True
         return len(images) == 1 and images[0].get_attribute('src').endswith('.png')
     except Exception as e:
@@ -37,7 +36,7 @@ def find_coordinates():
     filtered_worlds = [world for world in worlds if world.is_complete]
 
     x_guesses = range(10, 50, 5)  
-    y_guesses = range(250, 350, 10)  
+    y_guesses = range(200, 290, 10)  # Adjusted the Y range
 
     xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
 
@@ -69,6 +68,7 @@ def find_coordinates():
                     print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
 
     driver.quit()
+
 
 
 def compress_thumbnail(world):
