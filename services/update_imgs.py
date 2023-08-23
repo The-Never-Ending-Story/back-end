@@ -10,6 +10,18 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from .api_services import imagine
 from .world_generator import wait_for_image
+from selenium.webdriver.common.action_chains import ActionChains
+
+def is_png_image_displayed(driver):
+    try:
+        # Find all images on the page
+        images = driver.find_elements_by_tag_name('img')
+        
+        # If there's only one image and its src ends with '.png', return True
+        return len(images) == 1 and images[0].get_attribute('src').endswith('.png')
+    except Exception as e:
+        print(f"Error checking if PNG image is displayed: {e}")
+        return False
 
 def find_coordinates():
     chrome_options = Options()
@@ -36,29 +48,27 @@ def find_coordinates():
 
         pattern = re.compile(r"\.png$") 
         if pattern.search(thumbnail_url):
-          print(f"Expected url: {thumbnail_url}")
-          expected_url = thumbnail_url
-          driver.get(thumbnail_url)
+            expected_url = thumbnail_url
+            driver.get(thumbnail_url)
 
-          time.sleep(5)
+            time.sleep(5)
 
-          print(f"Arrived at: {driver.current_url}")
+            if not is_png_image_displayed(driver):
+                x, y = xy_guesses[idx % len(xy_guesses)]
 
-          # Check if we're on the CAPTCHA page
-          if driver.current_url != expected_url:
-              x, y = xy_guesses[idx % len(xy_guesses)]
-              try:
-                  driver.execute_script(f"document.elementFromPoint({x}, {y}).click();")
-                  time.sleep(5)  
-                  print(f"now at {driver.current_url}")
-                  if driver.current_url == expected_url:
-                      print(f"Found valid coordinates: X={x}, Y={y} for world {world.id}")
-                      break
+                try:
+                    action = ActionChains(driver)
+                    action.move_by_offset(x, y).click().perform()
+                    time.sleep(5)  
 
-              except Exception as e:
-                  print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
+                    if is_png_image_displayed(driver):
+                        print(f"Found valid coordinates: X={x}, Y={y} for world {world.id}")
+                        break
+                except Exception as e:
+                    print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
 
     driver.quit()
+
 
 
 def compress_thumbnail(world):
