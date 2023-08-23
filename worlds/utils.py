@@ -37,7 +37,7 @@ GENRE_MAPPING = {
 }
 
 def get_category_based_on_genre(genre):
-    for category, genres_list in CATEGORY_MAPPING.items():
+    for category, genres_list in GENRE_MAPPING.items():
         if genre in genres_list:
             return category
     return None
@@ -70,3 +70,5 @@ def assign_categories_to_worlds():
     for world in worlds:
         world.categories = [assign_category_to_world(world)]
         world.save()
+
+assign_categories_to_worlds()
