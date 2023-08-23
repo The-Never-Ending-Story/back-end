@@ -56,6 +56,9 @@ def assign_category_to_world(world):
         if category:
             category_counts[category] = category_counts.get(category, 0) + 1
 
+    if not category_counts: 
+        return None
+
     sorted_categories = sorted(
         category_counts.keys(),
         key=lambda category: (
@@ -74,7 +77,9 @@ def assign_categories_to_worlds():
     worlds = World.objects.all()
 
     for world in worlds:
-        world.category = [assign_category_to_world(world)]
-        world.save()
+        category = assign_category_to_world(world)
+        if category:  # Add this check
+            world.category = [category]
+            world.save()
 
 assign_categories_to_worlds()
