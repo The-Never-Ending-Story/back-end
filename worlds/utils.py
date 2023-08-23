@@ -60,7 +60,7 @@ def assign_category_to_world(world):
         category_counts.keys(),
         key=lambda category: (
             category_counts[category], 
-            -World.objects.filter(categories=category).count()
+            -World.objects.filter(category=category).count()
         ),
         reverse=True
     )
