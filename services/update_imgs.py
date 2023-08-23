@@ -11,6 +11,46 @@ from selenium.webdriver.chrome.options import Options
 from .api_services import imagine
 from .world_generator import wait_for_image
 
+def find_coordinates():
+    chrome_options = Options()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    worlds = World.objects.all()
+
+    x_guesses = range(10, 50, 5)  
+    y_guesses = range(250, 350, 10)  
+
+    xy_guesses = [(x, y) for x in x_guesses for y in y_guesses]
+
+    for idx, world in enumerate(worlds):
+        thumbnail_url = world.img.get("thumbnail")
+        expected_url = thumbnail_url
+        driver.get(thumbnail_url)
+
+        time.sleep(3)
+
+        # Check if we're on the CAPTCHA page
+        if driver.current_url != expected_url:
+            x, y = xy_guesses[idx % len(xy_guesses)]
+            try:
+                driver.execute_script(f"document.elementFromPoint({x}, {y}).click();")
+                time.sleep(3)  
+
+                if driver.current_url == expected_url:
+                    print(f"Found valid coordinates: X={x}, Y={y} for world {world.id}")
+                    break
+
+            except Exception as e:
+                print(f"Error while trying coordinates X={x}, Y={y} for world {world.id}. Error: {e}")
+
+    driver.quit()
+
+
 def compress_thumbnail(world):
     # Setup Chrome options
     chrome_options = Options()
@@ -25,7 +65,9 @@ def compress_thumbnail(world):
     try:
         print(f"---\nStarting world {world.id}")
         pattern = re.compile(r"\.png$") 
-        thumbnail_url = world.img.get("thumbnail")
+        thumbnail_url = world.imgs.get("thumbnails")
+        if thumbnail_url and pattern.search(thumbnail_url):
+            thumbnail_url = thumbnail_url[0]
         
         if not thumbnail_url:
             print(f"No thumbnail URL for world {world.id}")
@@ -103,7 +145,9 @@ def get_new_heros():
           print("world is missing thumbnail")
       
 
-get_new_heros()
+find_coordinates()
+
+# get_new_heros()
 
 # compress_thumbnails()
 
