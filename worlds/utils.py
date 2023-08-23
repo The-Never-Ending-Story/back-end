@@ -59,10 +59,10 @@ def assign_category_to_world(world):
         reverse=True
     )
 
-    if len(sorted_categories) > 1 and category_counts[sorted_categories[0]] == category_counts[sorted_categories[1]]:
-        return random.choice(sorted_categories)
+    top_count = category_counts[sorted_categories[0]]
+    tied_categories = [cat for cat, count in category_counts.items() if count == top_count]
     
-    return sorted_categories[0]
+    return random.choice(tied_categories)
 
 def assign_categories_to_worlds():
     worlds = World.objects.all()
