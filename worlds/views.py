@@ -49,7 +49,7 @@ def world_detail(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     world.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def character_list(request):
@@ -83,7 +83,7 @@ def character_detail(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     character.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def location_list(request):
@@ -117,7 +117,7 @@ def location_detail(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     location.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def event_list(request):
@@ -151,7 +151,7 @@ def event_detail(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     event.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def world_locations_list(request, id):
@@ -189,7 +189,7 @@ def world_location_detail(request, world_id, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     location.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def world_characters_list(request, id):
@@ -227,7 +227,7 @@ def world_character_detail(request, world_id, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     character.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def world_events_list(request, id):
@@ -252,7 +252,7 @@ def world_event_detail(request, world_id, id):
     event = events.get(pk=id)
   except World.DoesNotExist:
     return Response(status=status.HTTP_404_NOT_FOUND)
-  except Event.DoesNotExist: 
+  except Event.DoesNotExist:
     return Response(status=status.HTTP_404_NOT_FOUND)
   if request.method == 'GET':
     serializer = EventSerializer(event)
@@ -265,7 +265,7 @@ def world_event_detail(request, world_id, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   elif request.method == 'DELETE':
     event.delete()
-    return Response(status=status.HTTP_404_NO_CONTENT)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
 def discover_world(request):
@@ -301,14 +301,14 @@ def webhook(request):
       image_urls = data.get("imageUrls")
 
       if not isinstance(instance, World):
-        instance.imgs = image_urls  
+        instance.imgs = image_urls
         instance.img = image_urls[0]
       elif ref.get("type"):
         instance.imgs[ref["type"] + "s"] = image_urls
         instance.img[ref["type"]] = image_urls[0]
 
       instance.save()
-    else: 
+    else:
       print("No ref in data")
 
     return JsonResponse({'status': 'ok'}, status=200)
