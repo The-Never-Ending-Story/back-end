@@ -79,7 +79,7 @@ def assign_categories_to_worlds():
     for world in worlds:
         category = assign_category_to_world(world)
         if category:  # Add this check
-            world.category = [category]
+            world.category = category
             world.save()
 
 assign_categories_to_worlds()
