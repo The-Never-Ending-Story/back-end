@@ -10,7 +10,7 @@ class World(models.Model):
     discovered = models.BooleanField(default=False)
     earthly = models.BooleanField(default=True)
     category = models.CharField(max_length=250, default='')
-    genres = models.JSONField(default=dict)
+    genres = models.JSONField(default=list)
     blurb = models.CharField(max_length=250)
     description = models.TextField(default='')
     geoDynamics = models.JSONField(default=dict)
@@ -36,7 +36,7 @@ class World(models.Model):
     @property
     def species(self):
         return self.species_set.all()
-    
+
     @property
     def is_complete(self):
         pattern = re.compile(r"\.png$")
@@ -56,7 +56,7 @@ class World(models.Model):
             for instance in model:
                 if isinstance(instance.img, str) and not pattern.search(instance.img):
                     return False
-        
+
         return True
 
     def __str__(self):

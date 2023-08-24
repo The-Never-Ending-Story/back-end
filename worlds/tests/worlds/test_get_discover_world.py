@@ -5,9 +5,9 @@ from fixtures.worlds import mock_worlds
 
 
 @pytest.mark.django_db
-def test_get_world_happy(mock_worlds):
+def test_get_discover_world_happy(mock_worlds):
     client = APIClient()
-    url = reverse('get_world', kwargs={'id': mock_worlds[0].id})
+    url = reverse('get_discover_world')
     response = client.get(url)
 
     assert response.status_code == 200
@@ -112,9 +112,9 @@ def test_get_world_happy(mock_worlds):
 
 
 @pytest.mark.django_db
-def test_get_world_invalid_world():
+def test_get_discover_world_invalid():
     client = APIClient()
-    url = reverse('get_world', kwargs={'id': 5678})
+    url = reverse('get_discover_world')
     response = client.get(url)
 
-    assert response.status_code == 404
+    assert response.status_code == 400

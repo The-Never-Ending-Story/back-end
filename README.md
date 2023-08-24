@@ -32,7 +32,9 @@
 <h3 align="center">HyperLoom</h3>
 
   <p align="center">
-    <a href="https://hyper-loom-explorer.vercel.app">Production Site</a>
+    <a href="https://hyper-loom-explorer.vercel.app">Deployed Front end</a>
+    ·
+    <a href="https://hyperloom-d209dae18b26.herokuapp.com/worlds">Deployed Back end</a>
     ·
     <a href="https://github.com/The-Never-Ending-Story/back-end/issues">Report Bug</a>
     ·
@@ -76,7 +78,7 @@ Hyperloom is a web based application that leverages ChatGPT and Midjourney to pr
 Hyperloom was built with a separate frontend and backend. The backend API service exposes RESTful endpoints returning JSON data for the frontend to consume. The backend seeds its database using a script for generating textual descriptions of worlds via the ChatGPT API. The ChatGPT API creates the AI-generated textual metadata for an imaginary world. This metadata is then also used to create the prompt that is sent to the Midjourney API to create AI-generated images based off of those descriptions.
 
 - [Production Website][deployed-frontend-url]
-- [Backend API Service][deployed-backend-url]
+- [Backend API Service (/worlds endpoint)][deployed-backend-url]
 - [Hyperloom GitHub][hyperloom-gh-url]
 - [Frontend Repository][frontend-gh-url]
 - [Backend Repository][backend-gh-url]
@@ -128,7 +130,7 @@ These instructions are only for the backend. To setup the frontend locally, foll
    ```
 4. Install python packages from requirements.txt
    ```sh
-   python -m pip -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
 5. Make migrations
    ```sh
@@ -176,7 +178,7 @@ Prefix all endpoints with the deployed backend API domain: [https://hyperloom-d2
 
 API documentation is done using [Swagger](https://swagger.io/) (linked below), following the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification) from the [OpenAPI Initiative](https://www.openapis.org/). API responses return JSON.
 
-[Hyperloom API Documentation in Swagger](https://app.swaggerhub.com/apis-docs/brandenge/Hyperloom/1.0.0)
+[Hyperloom API Documentation in Swagger](https://app.swaggerhub.com/apis-docs/brandenge/Hyperloom/1.1.1)
 
 ## Testing
 
@@ -193,9 +195,16 @@ To run the Pytest test suite, follow the following steps:
    open htmlcov/index.html
    ```
 
+Use the built-in Python Debugger (PDB) for debugging by adding the following line of code to set a breakpoint:
+          a
+```python
+import pdb;pdb.set_trace()
+```
+
 Coverage report:
 
-![Pytest Coverage Report](images/test-coverage.png)
+![Pytest Coverage Report 1](images/test-coverage1.png)
+![Pytest Coverage Report 2](images/test-coverage2.png)
 
 <!-- ROADMAP -->
 ## Roadmap
