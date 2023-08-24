@@ -12,9 +12,6 @@ def mock_worlds():
         description='A world of high fantasy and powerful magics',
         discovered=True,
         earthly=False,
-        hero='hero.png',
-        heros={'hero': 'hero.png'},
-        thumbnail=b'thumbnail.png',
         geoDynamics={
             'size': 'massive',
             'shape': 'round',
@@ -47,9 +44,6 @@ def mock_worlds():
         description='A world of advanced technology',
         discovered=True,
         earthly=True,
-        hero='hero.png',
-        heros={'hero': 'hero.png'},
-        thumbnail=b'thumbnail.png',
         geoDynamics={
             'size': 'massive',
             'shape': 'round',
@@ -82,9 +76,6 @@ def mock_worlds():
         description='A world of high fantasy and powerful magics',
         discovered=False,
         earthly=True,
-        hero='hero.png',
-        heros={'hero': 'hero.png'},
-        thumbnail=b'thumbnail.png',
         geoDynamics={
             'size': 'massive',
             'shape': 'round',
@@ -117,9 +108,6 @@ def mock_worlds():
         description='A world of advanced technology',
         discovered=False,
         earthly=True,
-        hero='hero.png',
-        heros={'hero': 'hero.png'},
-        thumbnail=b'thumbnail.png',
         geoDynamics={
             'size': 'massive',
             'shape': 'round',

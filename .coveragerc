@@ -6,3 +6,4 @@ omit =
   manage.py
   worlds/asgi.py
   worlds/wsgi.py
+  worlds/utils.py
