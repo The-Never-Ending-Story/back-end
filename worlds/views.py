@@ -155,9 +155,12 @@ def event_detail(request, id):
 
 @api_view(['GET', 'POST'])
 def world_locations_list(request, id):
+  try:
+    world = World.objects.get(pk=id)
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
 
   if request.method == 'GET':
-    world = World.objects.get(pk=id)
     locations = world.location_set.all()
     serializer = LocationSerializer(locations, many=True)
     return Response(serializer.data)
@@ -193,9 +196,12 @@ def world_location_detail(request, world_id, id):
 
 @api_view(['GET', 'POST'])
 def world_characters_list(request, id):
+  try:
+    world = World.objects.get(pk=id)
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
 
   if request.method == 'GET':
-    world = World.objects.get(pk=id)
     characters = world.character_set.all()
     serializer = CharacterSerializer(characters, many=True)
     return Response(serializer.data)
@@ -207,7 +213,6 @@ def world_characters_list(request, id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def world_character_detail(request, world_id, id):
-
   try:
     world = World.objects.get(pk=world_id)
     characters = world.character_set.all()
@@ -231,6 +236,10 @@ def world_character_detail(request, world_id, id):
 
 @api_view(['GET', 'POST'])
 def world_events_list(request, id):
+  try:
+    world = World.objects.get(pk=id)
+  except World.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
 
   if request.method == 'GET':
     world = World.objects.get(pk=id)
@@ -245,7 +254,6 @@ def world_events_list(request, id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def world_event_detail(request, world_id, id):
-
   try:
     world = World.objects.get(pk=world_id)
     events = world.event_set.all()
