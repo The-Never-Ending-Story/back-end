@@ -21,7 +21,7 @@ from worlds import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('worlds', views.world_list, name='get_world_list'),
+    path('worlds/', views.world_list, name='get_world_list'),
     path('worlds/<int:id>', views.world_detail, name='get_world'),
     path('locations', views.location_list, name='get_location_list'),
     path('locations/<int:id>', views.location_detail, name='get_location'),
