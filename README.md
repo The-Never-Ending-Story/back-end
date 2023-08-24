@@ -203,7 +203,8 @@ import pdb;pdb.set_trace()
 
 Coverage report:
 
-![Pytest Coverage Report](images/test-coverage.png)
+![Pytest Coverage Report 1](images/test-coverage1.png)
+![Pytest Coverage Report 2](images/test-coverage2.png)
 
 <!-- ROADMAP -->
 ## Roadmap
