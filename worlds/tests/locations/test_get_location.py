@@ -38,7 +38,7 @@ def test_get_location_happy(mock_locations):
 
 
 @pytest.mark.django_db
-def test_get_location_sad():
+def test_get_location_invalid_location():
     client = APIClient()
     url = reverse('get_location', kwargs={'id': 5678})
     response = client.get(url)

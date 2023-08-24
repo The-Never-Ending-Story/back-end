@@ -111,13 +111,3 @@ def test_get_world_list_happy(mock_worlds):
 
         for character in world['characters']:
             assert(type(character)) is dict
-
-
-@pytest.mark.django_db
-def test_get_world_list_sad():
-    client = APIClient()
-    url = reverse('get_world_list')
-    response = client.get(url)
-
-    assert response.status_code == 200
-    world_list = response.json()

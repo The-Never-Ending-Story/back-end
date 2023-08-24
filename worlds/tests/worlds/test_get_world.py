@@ -112,7 +112,7 @@ def test_get_world_happy(mock_worlds):
 
 
 @pytest.mark.django_db
-def test_get_world_sad():
+def test_get_world_invalid_world():
     client = APIClient()
     url = reverse('get_world', kwargs={'id': 5678})
     response = client.get(url)

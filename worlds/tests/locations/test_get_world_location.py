@@ -46,3 +46,13 @@ def test_get_world_location_invalid_world(mock_locations):
     response = client.get(url)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_get_world_location_invalid_location(mock_worlds):
+    client = APIClient()
+    url_ids = {'world_id': mock_worlds[0].id, 'id': 5678}
+    url = reverse('get_world_location', kwargs=url_ids)
+    response = client.get(url)
+
+    assert response.status_code == 404
