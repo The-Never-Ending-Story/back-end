@@ -130,7 +130,7 @@ These instructions are only for the backend. To setup the frontend locally, foll
    ```
 4. Install python packages from requirements.txt
    ```sh
-   python -m pip -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
 5. Make migrations
    ```sh
