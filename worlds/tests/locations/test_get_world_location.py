@@ -1,41 +1,14 @@
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
-
-from worlds.models import World
-from locations.models import Location
-
-
-@pytest.fixture
-def mock_world():
-    return World.objects.create(
-        name='Magic World',
-        blurb='A magical world',
-        description='A world of high fantasy and powerful magics',
-        discovered=False,
-        geoDynamics={'origin': 'mountains'},
-        magicTechnology={'origin': 'ancient'},
-        img={'thumbnail': 'https://imgur.com/gallery/world123'}
-    )
-
-
-@pytest.fixture
-def mock_location(mock_world):
-    return Location.objects.create(
-        name='Magic City',
-        type='city',
-        climate='rainy',
-        lore='An ancient city of wonder',
-        imagine='Imagine a city of ancient magics',
-        img='https://imgur.com/gallery/location123',
-        world=mock_world
-    )
+from fixtures.locations import mock_locations
+from fixtures.worlds import mock_worlds
 
 
 @pytest.mark.django_db
-def test_get_world_location_happy(mock_location, mock_world):
+def test_get_world_location_happy(mock_locations, mock_worlds):
     client = APIClient()
-    url_ids = {'world_id': mock_world.id, 'id': mock_location.id}
+    url_ids = {'world_id': mock_worlds[0].id, 'id': mock_locations[0].id}
     url = reverse('get_world_location', kwargs=url_ids)
     response = client.get(url)
 
@@ -51,6 +24,7 @@ def test_get_world_location_happy(mock_location, mock_world):
     assert 'lore' in location
     assert 'imagine' in location
     assert 'img' in location
+    assert 'imgs' in location
     assert 'world' in location
 
     assert type(location['id']) is int
@@ -60,13 +34,14 @@ def test_get_world_location_happy(mock_location, mock_world):
     assert type(location['lore']) is str
     assert type(location['imagine']) is str
     assert type(location['img']) is str
+    assert type(location['imgs']) is list
     assert type(location['world']) is int
 
 
 @pytest.mark.django_db
-def test_get_world_location_invalid_world(mock_location):
+def test_get_world_location_invalid_world(mock_locations):
     client = APIClient()
-    url_ids = {'world_id': 5678, 'id': mock_location.id}
+    url_ids = {'world_id': 5678, 'id': mock_locations[0].id}
     url = reverse('get_world_location', kwargs=url_ids)
     response = client.get(url)
 
