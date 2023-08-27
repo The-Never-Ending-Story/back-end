@@ -139,8 +139,9 @@ def compress_thumbnails():
 
 def get_new_heros():
     worlds = World.objects.all()
+    filtered_worlds = [world for world in worlds if not world.is_complete]
 
-    for world in worlds:
+    for world in filtered_worlds:
       print(f'working on hero for world {world.id}...')
 
       heros = world.imgs.get("heros")
@@ -178,7 +179,7 @@ def revert_thumbnails():
             continue
 
 
-revert_thumbnails()
+# revert_thumbnails()
 
 # find_coordinates()
 
