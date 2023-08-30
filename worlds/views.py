@@ -279,9 +279,10 @@ def world_event_detail(request, world_id, id):
 def discover_world(request):
     try:
         world_list = World.objects.filter(discovered=False)
-        if len(world_list) == 0:
+        filtered_worlds = [world for world in world_list if world.is_complete]
+        if len(filtered_worlds) == 0:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        world = world_list[0]
+        world = filtered_worlds[0]
     except World.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'GET':
