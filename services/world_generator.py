@@ -219,7 +219,7 @@ def update_midj_images(world):
 
     if landscape is not None and isinstance(landscape, str) and landscape.startswith("https"):
         pattern = re.compile(r"/0_\d\.png$")
-        if "landscapes" not in world_imgs or not pattern.search(world_imgs["landscapes"][0]) and pattern.search(landscape):
+        if "landscapes" not in world_imgs or not world_imgs["landscapes"][0] or not pattern.search(world_imgs["landscapes"][0]) and pattern.search(landscape):
             base_url = re.sub(r"/0_\d\.png$", "", landscape) 
             world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
     
@@ -261,9 +261,9 @@ def update_midj_images(world):
     for i, location in enumerate(locations):
         print(f'working on {i+1}/{len(locations)} incomplete locations for {world.name}, world {world.id}')
 
-        if isinstance(location.img, str) and location.imgs and not location.imgs[0].endswith('.png'):
+        if isinstance(location.img, str) and isinstance(location.imgs, list) and location.imgs[0] and not location.imgs[0].endswith('.png'):
             pattern = re.compile(r"/0_\d\.png$")
-            if not location.imgs or not pattern.search(location.imgs[0]) and pattern.search(location.img):
+            if not pattern.search(location.imgs[0]) and pattern.search(location.img):
                 base_url = re.sub(r"/0_\d\.png$", "", location.img) 
                 world_imgs["landscapes"] = [f"{base_url}/0_{i}.png" for i in range(4)]
 
