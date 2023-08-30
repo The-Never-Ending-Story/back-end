@@ -44,9 +44,8 @@ class World(models.Model):
         if isinstance(self.img, dict):
             thumbnail_img = self.img.get("thumbnail", None)
             landscape_img = self.img.get("landscape", None)
-            hero_img = self.img.get("hero", None)
 
-            if not (thumbnail_img and landscape_img and hero_img and pattern.search(thumbnail_img) and pattern.search(landscape_img) and pattern.search(hero_img)):
+            if not (thumbnail_img and landscape_img and pattern.search(thumbnail_img) and pattern.search(landscape_img)):
                 return False
         else:
             if not pattern.search(self.img):
